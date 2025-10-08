@@ -17,9 +17,9 @@ import type { Coordinates, CellColor, Piece, CellProps, Cell } from './type';
         case 5:
           return 'bN';
         case 3:
-          return 'bK';
-        case 4:
           return 'bQ';
+        case 4:
+          return 'bK';
       }
     } else if (coordinates.row === 1) {
       return 'bP';
@@ -37,9 +37,9 @@ import type { Coordinates, CellColor, Piece, CellProps, Cell } from './type';
         case 5:
           return 'wN';
         case 3:
-          return 'wK';
-        case 4:
           return 'wQ';
+        case 4:
+          return 'wK';
       }
     }
     return null

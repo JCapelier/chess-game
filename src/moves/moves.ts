@@ -1,5 +1,11 @@
 import type { Cell } from "../type";
 import { isEnemyPiece, getCellInfo } from '../utils';
+import { pawnValidMoves } from "./pawnMoves";
+import { rookValidMoves } from "./rookMoves";
+import { bishopValidMoves } from "./bishopMoves";
+import { knightValidMoves } from "./knightMoves";
+import { queenValidMoves } from "./queenValidMoves";
+import { kingValidMoves } from "./kingMoves";
 
 // Generic function to scan in ordered directions for sliding pieces (rook, bishop, queen)
 export function checkOrderedCells(startCell: Cell, orderedCells: Cell[][]): Cell[] {
@@ -88,4 +94,26 @@ export function diagonalSlidingMoves(cells: Cell[], startCell: Cell): Cell[] {
   const orderedCells = [topLeftCells, bottomRightCells, topRightCells, bottomLeftCells];
 
   return checkOrderedCells(startCell, orderedCells)
+}
+
+export function possibleMoves(cells: Cell[], startCell: Cell): Cell[] {
+  if (!startCell.piece) return [];
+
+  // The last letter of the type allows us to determine what move is possible.
+  switch (startCell.piece.type.at(-1)) {
+    case 'P':
+      return pawnValidMoves(cells, startCell);
+    case 'R':
+      return rookValidMoves(cells, startCell);
+    case 'B':
+      return bishopValidMoves(cells, startCell);
+    case 'N':
+      return knightValidMoves(cells, startCell);
+    case 'Q':
+      return queenValidMoves(cells, startCell);
+    case 'K':
+      return kingValidMoves(cells, startCell)
+    default:
+      return []
+  }
 }
