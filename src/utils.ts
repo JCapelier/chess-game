@@ -103,7 +103,8 @@ import type { Coordinates, CellColor, Piece, CellData, Cell } from './type';
         return { ...cell, piece: null };
       }
       if (toChessNotation(cell.coordinates) === toChessNotation(destinationCell.coordinates)) {
-        return { ...cell, piece: startCell.piece };
+        // This ! is legit : board component only allow the player to select a cell occupied by one of their pieces.
+        return { ...cell, piece: { type: startCell.piece!.type, hasMoved: true }};
       }
       return cell;
     });

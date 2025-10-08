@@ -13,6 +13,7 @@ export default function Board() {
   const possibleMoves: CellType[] = selectedCell ? getPossibleMoves(cells, selectedCell) : [];
 
   const handleCellClick = (cell: CellType) => {
+    // Clicking on the same cell again deselect the cell.
     if (selectedCell && toChessNotation(selectedCell.coordinates) === toChessNotation(cell.coordinates)) {
       setSelectedCell(null);
     } else if (selectedCell && isPlayerPiece(selectedCell, turn)) {
@@ -23,6 +24,7 @@ export default function Board() {
         setTurn(turn === 'white' ? 'black' : 'white');
       }
         setSelectedCell(null);
+     // A player can only select a cell occupied by one of their pieces. That's why we can enforce that there's a piece on the selected cell in movePiece helper.
     } else if (isPlayerPiece(cell, turn)) {
       setSelectedCell(cell);
     }
