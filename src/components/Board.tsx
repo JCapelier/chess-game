@@ -1,5 +1,5 @@
 import Cell from './Cell';
-import { setBoard } from './utils';
+import { setBoard } from '../utils';
 
 export default function Board() {
   const cells = setBoard()

@@ -90,7 +90,3 @@ import type { Coordinates, CellColor, Piece, CellProps, Cell } from './type';
       piece: startCell.piece,
     };
   }
-
-  export function isMoveLegal(cells: Cell[], startCell: Cell, endCell: Cell) {
-
-  }

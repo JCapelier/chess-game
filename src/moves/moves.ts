@@ -1,13 +1,5 @@
-import type { Cell } from "./type";
-import { isEnemyPiece, getCellInfo } from './utils';
-
-export function isMoveLegal(cells: Cell[], startCell: Cell, endCell: Cell): boolean {
-
-}
-
-export function validMoves(cells: Cell[], startCell: Cell): Cell[] {
-
-}
+import type { Cell } from "../type";
+import { isEnemyPiece, getCellInfo } from '../utils';
 
 // Generic function to scan in ordered directions for sliding pieces (rook, bishop, queen)
 export function checkOrderedCells(startCell: Cell, orderedCells: Cell[][]): Cell[] {
@@ -54,4 +46,46 @@ export function orthogonalSlidingMoves(cells: Cell[], startCell: Cell): Cell[] {
   return checkOrderedCells(startCell, orderedCells)
 }
 
+export function diagonalSlidingMoves(cells: Cell[], startCell: Cell): Cell[] {
 
+  const { col, row } = getCellInfo(startCell);
+
+  // The following logic relies on the fact that
+  // 1) for every point on a top-left to bottom-right diagonal, row - col is constant
+  // 2) for every point on a top-right to bottom-left diagonal, row + col is constant
+
+  // As for the rooks, each array is sorted, so that we can move outward from the rook position when checking cells
+
+  // Top-left: col < startCol, row < startRow, (col - row) === (startCol - startRow)
+  const topLeftCells = cells.filter(cell =>
+    cell.coordinates.col < col &&
+    cell.coordinates.row < row &&
+    (cell.coordinates.col - cell.coordinates.row) === (col - row)
+  ).sort((a, b) => b.coordinates.col - a.coordinates.col);
+
+
+  // Bottom-right: col > startCol, row > startRow, (col - row) === (startCol - startRow)
+  const bottomRightCells = cells.filter(cell =>
+    cell.coordinates.col > col &&
+    cell.coordinates.row > row &&
+    (cell.coordinates.col - cell.coordinates.row) === (col - row)
+  ).sort((a, b) => a.coordinates.col - b.coordinates.col);
+
+  // Top-right: col > startCol, row < startRow, (col + row) === (col + row)
+  const topRightCells = cells.filter(cell =>
+    cell.coordinates.col > col &&
+    cell.coordinates.row < row &&
+    (cell.coordinates.col + cell.coordinates.row) === (col + row)
+  ).sort((a, b) => a.coordinates.col - b.coordinates.col);
+
+  // Bottom-left: col < startCol, row > startRow, (col + row) === (col + row)
+  const bottomLeftCells = cells.filter(cell =>
+    cell.coordinates.col < col &&
+    cell.coordinates.row > row &&
+    (cell.coordinates.col + cell.coordinates.row) === (col + row)
+  ).sort((a, b) => b.coordinates.col - a.coordinates.col);
+
+  const orderedCells = [topLeftCells, bottomRightCells, topRightCells, bottomLeftCells];
+
+  return checkOrderedCells(startCell, orderedCells)
+}

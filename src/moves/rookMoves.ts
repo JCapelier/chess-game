@@ -1,5 +1,5 @@
-import type { Cell } from "./type";
-import { orthogonalSlidingMoves } from "./moves";
+import type { Cell } from "../type";
+import { orthogonalSlidingMoves } from "../moves";
 
 export function rookValidMoves(cells: Cell[], startCell: Cell): Cell[] {
 
