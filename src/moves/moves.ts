@@ -96,7 +96,7 @@ export function diagonalSlidingMoves(cells: Cell[], startCell: Cell): Cell[] {
   return checkOrderedCells(startCell, orderedCells)
 }
 
-export function possibleMoves(cells: Cell[], startCell: Cell): Cell[] {
+export function getPossibleMoves(cells: Cell[], startCell: Cell): Cell[] {
   if (!startCell.piece) return [];
 
   // The last letter of the type allows us to determine what move is possible.
