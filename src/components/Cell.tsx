@@ -1,4 +1,4 @@
-import type { Cell } from './type';
+import type { Cell } from '../type';
 import './Cell.css';
 
 export default function Cell(props: Cell) {
