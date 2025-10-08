@@ -1,7 +1,8 @@
 import Cell from './Cell';
 import type { Cell as CellType, CellData, CellColor } from '../type';
 import { useState } from 'react';
-import { setBoard, toChessNotation, movePiece, isPlayerPiece } from '../utils';
+import { toChessNotation, isPlayerPiece } from '../utils/utils';
+import { movePiece, setBoard } from '../utils/boardUtils';
 import { getPossibleMoves } from '../moves/moves';
 import GameHeader from './GameHeader';
 

@@ -1,5 +1,5 @@
 import type { Cell } from "../type";
-import { isEnemyPiece, getCellInfo } from '../utils';
+import { isEnemyPiece, getCellInfo } from '../utils/utils';
 import { pawnValidMoves } from "./pawnMoves";
 import { rookValidMoves } from "./rookMoves";
 import { bishopValidMoves } from "./bishopMoves";

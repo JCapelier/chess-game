@@ -1,5 +1,5 @@
 import type { Cell } from "../type";
-import { isBlack, isEnemyPiece, getCellInfo } from '../utils';
+import { isBlack, isEnemyPiece, getCellInfo } from '../utils/utils';
 
 export function pawnValidMoves(cells: Cell[], startCell: Cell): Cell[] {
 

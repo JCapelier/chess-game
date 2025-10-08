@@ -1,5 +1,5 @@
 import type { CellColor } from '../type';
-import { capitalize } from '../utils';
+import { capitalize } from '../utils/utils';
 
 type GameHeaderProps = {
   turn: CellColor
