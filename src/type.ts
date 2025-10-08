@@ -10,15 +10,21 @@ export type Piece = {
 
 export type CellColor = 'black' | 'white'
 
+// Needless complexity of the next three types. Needs refacto.
 export type Cell = {
   coordinates: Coordinates;
   piece: Piece | null;
   cellColor: CellColor;
 };
 
-export type CellProps = {
+// We use CellData for setBoard in utils.ts. This is for pure functions.
+// CellProps is an extension of this type, for event handlers.
+export type CellData = Cell & {
   key: string,
-  coordinates: Coordinates;
-  piece: Piece | null ;
-  cellColor: CellColor;
+}
+
+export type CellProps = CellData & {
+  onCellClick: () => void;
+  isSelected: boolean;
+  isPossibleDestination: boolean;
 };
