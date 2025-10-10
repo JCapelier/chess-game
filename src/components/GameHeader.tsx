@@ -1,14 +1,16 @@
-import type { CellColor } from '../type';
+import type { CellColor, GameStatus } from '../type';
 import { capitalize } from '../utils/utils';
 
 type GameHeaderProps = {
-  turn: CellColor
+  turn: CellColor,
+  gameStatus: GameStatus
 }
 
 export default function GameHeader (props: GameHeaderProps) {
   return(
-    <div>
-      <span>{capitalize(props.turn)}'s turn.</span>
+    <div className='flex flex-col items-center justify-center'>
+      <div className='text-red-600'>{props.gameStatus === 'check' ? 'Check!' : ''}</div>
+      <div>{capitalize(props.turn)}'s turn.</div>
     </div>
   )
 }

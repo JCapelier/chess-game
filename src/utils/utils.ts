@@ -1,4 +1,4 @@
-import type { Coordinates, CellColor, Piece, Cell } from '../type';
+import type { Coordinates, CellColor, Piece, Cell, GameStatus } from '../type';
 
 
   export function getCellColor(coordinates: Coordinates): CellColor {
@@ -53,6 +53,9 @@ import type { Coordinates, CellColor, Piece, Cell } from '../type';
     return `${file}${rank}`;
   }
 
+  export function playerKing(cells: Cell[], turn: CellColor) {
+    return turn === 'white' ? cells.find(cell => cell.piece?.type === 'wK') : cells.find(cell => cell.piece?.type === 'bK');
+  }
 
   export function isWhite(piece: Piece | null): boolean {
     return piece !== null && piece.type.startsWith('w');
@@ -60,6 +63,11 @@ import type { Coordinates, CellColor, Piece, Cell } from '../type';
 
   export function isBlack(piece: Piece | null): boolean {
     return piece !== null && piece.type.startsWith('b');
+  }
+
+  export function isPlayerPiece(selectedCell: Cell, turn: CellColor): boolean {
+    if (!selectedCell.piece) return false;
+    return selectedCell.piece.type.at(0) === turn.at(0);
   }
 
   export function isEnemyPiece(playingPiece: Piece, otherPiece: Piece): boolean {
@@ -75,9 +83,17 @@ import type { Coordinates, CellColor, Piece, Cell } from '../type';
     };
   }
 
-  export function isPlayerPiece(selectedCell: Cell, turn: CellColor): boolean {
-    if (!selectedCell.piece) return false;
-    return selectedCell.piece.type.at(0) === turn.at(0);
+  export function isPlayerKing(cell: Cell, gameStatus: GameStatus, turn: CellColor): boolean {
+    // We only use this function in case of check.
+    if (gameStatus !== 'check') return false;
+
+    if (turn === 'white') {
+      return cell.piece?.type === "wK";
+    } else if (turn === 'black') {
+      return cell.piece?.type === 'bK';
+    } else {
+      return false
+    }
   }
 
   export function capitalize(str: string) {
