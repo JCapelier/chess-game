@@ -16,8 +16,7 @@ export function checkForCheck(cells: Cell[], turn: CellColor, simulation: boolea
   enemyCells.forEach(cell => {
     const cellsAttacked = getPossibleMoves(cells, cell, enemyColor, simulation);
     if (
-      cellsAttacked.some(
-        attack =>
+      cellsAttacked.some(attack =>
           toChessNotation(attack.coordinates) ===
           toChessNotation(kingCell.coordinates)
       )
@@ -26,4 +25,8 @@ export function checkForCheck(cells: Cell[], turn: CellColor, simulation: boolea
     }
   });
   return {check: attacks.length > 0, attackers: attacks}
+}
+
+export function checkforCheckmate(cells: Cell[], turn: CellColor, simulation: boolean): {checkmate: boolean, attackers: Cell[]} {
+
 }

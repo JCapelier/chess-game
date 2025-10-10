@@ -18,8 +18,7 @@ export default function Board() {
 
 
   useEffect(() => {
-    const checkedColor: CellColor = turn === 'white' ? 'black' : 'white';
-    const { check, attackers } = checkForCheck(cells, checkedColor);
+    const { check, attackers } = checkForCheck(cells, turn);
     if (check) {
       setGameStatus('check');
       setAttackers(attackers);
@@ -48,7 +47,6 @@ export default function Board() {
       setSelectedCell(cell);
     }
   }
-
 
   return(
     <>
