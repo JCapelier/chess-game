@@ -1,11 +1,12 @@
-import type { Cell } from "../type";
-import { isEnemyPiece, getCellInfo } from '../utils';
+import type { Cell, CellColor } from "../type";
+import { isEnemyPiece, getCellInfo } from '../utils/utils';
 import { pawnValidMoves } from "./pawnMoves";
 import { rookValidMoves } from "./rookMoves";
 import { bishopValidMoves } from "./bishopMoves";
 import { knightValidMoves } from "./knightMoves";
 import { queenValidMoves } from "./queenValidMoves";
 import { kingValidMoves } from "./kingMoves";
+import { filterMovesLeavingKingInCheck } from "../utils/boardUtils";
 
 // Generic function to scan in ordered directions for sliding pieces (rook, bishop, queen)
 export function checkOrderedCells(startCell: Cell, orderedCells: Cell[][]): Cell[] {
@@ -96,24 +97,36 @@ export function diagonalSlidingMoves(cells: Cell[], startCell: Cell): Cell[] {
   return checkOrderedCells(startCell, orderedCells)
 }
 
-export function getPossibleMoves(cells: Cell[], startCell: Cell): Cell[] {
+//Without the simulation boolean, we end in a loop, because filterMovesLeavingKingInCheck
+//calls checkForCheck which calls getPossibleMoves
+export function getPossibleMoves(cells: Cell[], startCell: Cell, turn: CellColor, simulation: boolean = false): Cell[] {
   if (!startCell.piece) return [];
 
+  let possibleMoves: Cell[] = []
   // The last letter of the type allows us to determine what move is possible.
   switch (startCell.piece.type.at(-1)) {
     case 'P':
-      return pawnValidMoves(cells, startCell);
+      possibleMoves = pawnValidMoves(cells, startCell);
+      break;
     case 'R':
-      return rookValidMoves(cells, startCell);
+      possibleMoves = rookValidMoves(cells, startCell);
+      break;
     case 'B':
-      return bishopValidMoves(cells, startCell);
+      possibleMoves = bishopValidMoves(cells, startCell);
+      break;
     case 'N':
-      return knightValidMoves(cells, startCell);
+      possibleMoves = knightValidMoves(cells, startCell);
+      break;
     case 'Q':
-      return queenValidMoves(cells, startCell);
+      possibleMoves = queenValidMoves(cells, startCell);
+      break;
     case 'K':
-      return kingValidMoves(cells, startCell)
+      possibleMoves = kingValidMoves(cells, startCell);
+      break;
     default:
       return []
   }
+
+  return simulation === false ? filterMovesLeavingKingInCheck(cells, startCell, possibleMoves, turn) : possibleMoves;
+
 }

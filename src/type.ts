@@ -1,7 +1,10 @@
+export type GameStatus = 'pending' | 'playing' | 'check' | 'over'
+
 export type Coordinates = {
   row: number;
   col: number;
 };
+
 
 export type Piece = {
   type: "wP" | "wN" | "wB" | "wR" | "wQ" | "wK" | "bP" | "bN" | "bB" | "bR" | "bQ" | "bK";
@@ -10,21 +13,17 @@ export type Piece = {
 
 export type CellColor = 'black' | 'white'
 
-// Needless complexity of the next three types. Needs refacto.
 export type Cell = {
   coordinates: Coordinates;
   piece: Piece | null;
   cellColor: CellColor;
 };
 
-// We use CellData for setBoard in utils.ts. This is for pure functions.
-// CellProps is an extension of this type, for event handlers.
-export type CellData = Cell & {
-  key: string,
-}
-
-export type CellProps = CellData & {
+export type CellProps = Cell & {
+  key: string;
   onCellClick: () => void;
   isSelected: boolean;
   isPossibleDestination: boolean;
+  isAttacker: boolean;
+  isCheck: boolean;
 };
