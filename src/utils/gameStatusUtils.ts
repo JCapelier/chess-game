@@ -16,8 +16,7 @@ export function checkForCheck(cells: Cell[], turn: CellColor, simulation: boolea
   enemyCells.forEach(cell => {
     const cellsAttacked = getPossibleMoves(cells, cell, enemyColor, simulation);
     if (
-      cellsAttacked.some(
-        attack =>
+      cellsAttacked.some(attack =>
           toChessNotation(attack.coordinates) ===
           toChessNotation(kingCell.coordinates)
       )
@@ -26,4 +25,19 @@ export function checkForCheck(cells: Cell[], turn: CellColor, simulation: boolea
     }
   });
   return {check: attacks.length > 0, attackers: attacks}
+}
+
+export function isCheckmate(cells: Cell[], turn: CellColor): boolean {
+  const { check } = checkForCheck(cells, turn);
+  if (!check) return false;
+
+  // For every piece of the current player
+  const playerCells = cells.filter(cell => isPlayerPiece(cell, turn));
+  for (const cell of playerCells) {
+    const moves = getPossibleMoves(cells, cell, turn);
+    if (moves.length > 0) {
+      return false; // There is at least one legal move
+    }
+  }
+  return true; // In check and no legal moves: checkmate
 }

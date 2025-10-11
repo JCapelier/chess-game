@@ -1,4 +1,4 @@
-export type GameStatus = 'pending' | 'playing' | 'check' | 'over'
+export type GameStatus = 'pending' | 'playing' | 'check' | 'checkmate' | 'over'
 
 export type Coordinates = {
   row: number;
