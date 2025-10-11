@@ -10,7 +10,7 @@ import { checkForCheck, isCheckmate, isStaleMate } from '../utils/gameStatusUtil
 export default function Board() {
 
   const [gameStatus, setGameStatus] = useState<GameStatus>('playing')
-  const [cells, setCells] = useState<CellType[]>(setBoard)
+  const [cells, setCells] = useState<CellType[]>(setBoard())
   const [selectedCell, setSelectedCell] = useState<CellType | null>(null)
   const [turn, setTurn] = useState<CellColor>('white');
   const [attackers, setAttackers] = useState<CellType[]>([])
@@ -53,9 +53,17 @@ export default function Board() {
     }
   }
 
+  const handleReset = ():void => {
+    setCells(setBoard());
+    setTurn('white');
+    setGameStatus('playing');
+    setSelectedCell(null);
+    setAttackers([]);
+  }
+
   return(
     <>
-      <GameHeader turn={turn} gameStatus={gameStatus} />
+      <GameHeader turn={turn} gameStatus={gameStatus} onClick={handleReset} />
       <div className="grid grid-cols-8 grid-rows-8">
         {cells.map(cell =>
             <Cell
@@ -64,8 +72,6 @@ export default function Board() {
               piece={cell.piece}
               cellColor={cell.cellColor}
               onCellClick={() => handleCellClick(cell)}
-              // Can't access selectedCell?.key immediately, because key isn't included in CellType and shouldn't be
-              // because key is just a rendering concern, and has no part in the logic of the game.
               isSelected={selectedCell ? toChessNotation(selectedCell.coordinates) === toChessNotation(cell.coordinates) : false}
               isPossibleDestination={possibleMoves.some(destination => toChessNotation(destination.coordinates) === toChessNotation(cell.coordinates))}
               isAttacker={attackers.some(attacker => toChessNotation(attacker.coordinates) === toChessNotation(cell.coordinates))}

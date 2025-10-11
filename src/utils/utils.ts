@@ -84,8 +84,8 @@ import type { Coordinates, CellColor, Piece, Cell, GameStatus } from '../type';
   }
 
   export function isPlayerKing(cell: Cell, gameStatus: GameStatus, turn: CellColor): boolean {
-    // We only use this function in case of check.
-    if (gameStatus !== 'check') return false;
+    // We only use this function in case of check or checkmate.
+    if (gameStatus === 'playing' || gameStatus === 'stalemate') return false;
 
     if (turn === 'white') {
       return cell.piece?.type === "wK";
