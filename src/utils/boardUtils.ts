@@ -1,3 +1,4 @@
+
 import type { Cell, CellColor } from '../type';
 import { checkForCheck } from './gameStatusUtils';
 import {getDefaultPiece, toChessNotation, getCellColor} from './utils'

@@ -41,3 +41,18 @@ export function isCheckmate(cells: Cell[], turn: CellColor): boolean {
   }
   return true; // In check and no legal moves: checkmate
 }
+
+export function isStaleMate(cells: Cell[], turn: CellColor): boolean {
+  const { check } = checkForCheck(cells, turn);
+  if (check) return false;
+
+  const playerCells = cells.filter(cell => isPlayerPiece(cell, turn));
+  //This syntax allows for break and return to leave the loop early (and continue to skip to the next iteration), which isn't allowed in forEach
+  for (const cell of playerCells) {
+    if (getPossibleMoves(cells, cell, turn).length > 0) {
+      // If any piece has a possible move, then there is no stalemate.
+      return false
+    }
+  }
+  return true;
+}

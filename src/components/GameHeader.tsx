@@ -12,6 +12,8 @@ export default function GameHeader (props: GameHeaderProps) {
     statusMessage = 'Check!';
   } else if (props.gameStatus === 'checkmate') {
     statusMessage = 'Checkmate!';
+  } else if (props.gameStatus === 'stalemate') {
+    statusMessage = 'Stalemate ...';
   }
 
   return(
