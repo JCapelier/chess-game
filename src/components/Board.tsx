@@ -5,17 +5,16 @@ import { toChessNotation, isPlayerPiece, isPlayerKing } from '../utils/utils';
 import { movePiece, setBoard } from '../utils/boardUtils';
 import { getPossibleMoves } from '../moves/moves';
 import GameHeader from './GameHeader';
-import { checkForCheck, isCheckmate } from '../utils/gameStatusUtils';
+import { checkForCheck, isCheckmate, isStaleMate } from '../utils/gameStatusUtils';
 
 export default function Board() {
 
   const [gameStatus, setGameStatus] = useState<GameStatus>('playing')
-  const [cells, setCells] = useState<CellType[]>(setBoard())
+  const [cells, setCells] = useState<CellType[]>(setBoard)
   const [selectedCell, setSelectedCell] = useState<CellType | null>(null)
   const [turn, setTurn] = useState<CellColor>('white');
   const [attackers, setAttackers] = useState<CellType[]>([])
   const possibleMoves: CellType[] = selectedCell ? getPossibleMoves(cells, selectedCell, turn) : [];
-
 
   useEffect(() => {
     const { check, attackers } = checkForCheck(cells, turn);
@@ -26,6 +25,8 @@ export default function Board() {
         setGameStatus('check');
       }
       setAttackers(attackers);
+    } else if (isStaleMate(cells, turn)) {
+      setGameStatus('stalemate')
     } else {
       setGameStatus('playing');
       setAttackers([]);

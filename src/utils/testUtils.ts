@@ -1,0 +1,23 @@
+// Set up a classic stalemate test board
+// Just move wQ from g7 to g6, and black will be stalemate
+import type { Cell } from '../type';
+export function setStalemateTestBoard(): Cell[] {
+  // Empty 8x8 board
+  const cells: Cell[] = [];
+  for (let row = 1; row <= 8; row++) {
+    for (let col = 0; col < 8; col++) {
+      cells.push({
+        coordinates: { row, col },
+        piece: null,
+        cellColor: ((row + col) % 2 === 0) ? 'white' : 'black',
+      });
+    }
+  }
+  // Place Black king on h8 (row 8, col 7)
+  cells.find(cell => cell.coordinates.row === 8 && cell.coordinates.col === 7)!.piece = { type: 'bK', hasMoved: true };
+  // Place White king on f6 (row 6, col 5)
+  cells.find(cell => cell.coordinates.row === 6 && cell.coordinates.col === 5)!.piece = { type: 'wK', hasMoved: true };
+  // Place White queen on g7 (row 7, col 6)
+  cells.find(cell => cell.coordinates.row === 7 && cell.coordinates.col === 6)!.piece = { type: 'wQ', hasMoved: true };
+  return cells;
+}
