@@ -5,7 +5,7 @@ import { toChessNotation, isPlayerPiece, isPlayerKing } from '../utils/utils';
 import { movePiece, setBoard } from '../utils/boardUtils';
 import { getPossibleMoves } from '../moves/moves';
 import GameHeader from './GameHeader';
-import { checkForCheck } from '../utils/gameStatusUtils';
+import { checkForCheck, isCheckmate } from '../utils/gameStatusUtils';
 
 export default function Board() {
 
@@ -20,7 +20,11 @@ export default function Board() {
   useEffect(() => {
     const { check, attackers } = checkForCheck(cells, turn);
     if (check) {
-      setGameStatus('check');
+      if (isCheckmate(cells, turn)) {
+        setGameStatus('checkmate');
+      } else {
+        setGameStatus('check');
+      }
       setAttackers(attackers);
     } else {
       setGameStatus('playing');

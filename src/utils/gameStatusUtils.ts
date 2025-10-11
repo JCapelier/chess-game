@@ -27,6 +27,17 @@ export function checkForCheck(cells: Cell[], turn: CellColor, simulation: boolea
   return {check: attacks.length > 0, attackers: attacks}
 }
 
-export function checkforCheckmate(cells: Cell[], turn: CellColor, simulation: boolean): {checkmate: boolean, attackers: Cell[]} {
+export function isCheckmate(cells: Cell[], turn: CellColor): boolean {
+  const { check } = checkForCheck(cells, turn);
+  if (!check) return false;
 
+  // For every piece of the current player
+  const playerCells = cells.filter(cell => isPlayerPiece(cell, turn));
+  for (const cell of playerCells) {
+    const moves = getPossibleMoves(cells, cell, turn);
+    if (moves.length > 0) {
+      return false; // There is at least one legal move
+    }
+  }
+  return true; // In check and no legal moves: checkmate
 }

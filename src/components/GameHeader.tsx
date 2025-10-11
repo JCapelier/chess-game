@@ -7,10 +7,21 @@ type GameHeaderProps = {
 }
 
 export default function GameHeader (props: GameHeaderProps) {
+  let statusMessage = '';
+  if (props.gameStatus === 'check') {
+    statusMessage = 'Check!';
+  } else if (props.gameStatus === 'checkmate') {
+    statusMessage = 'Checkmate!';
+  }
+
   return(
-    <div className='flex flex-col items-center justify-center'>
-      <div className='text-red-600'>{props.gameStatus === 'check' ? 'Check!' : ''}</div>
+    <>
+      <div className='flex flex-col items-center justify-center'>
+        <div className='text-red-600'>
+          {statusMessage}
+        </div>
       <div>{capitalize(props.turn)}'s turn.</div>
     </div>
+  </>
   )
 }
