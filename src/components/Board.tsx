@@ -38,7 +38,7 @@ export default function Board() {
     if (selectedCell && toChessNotation(selectedCell.coordinates) === toChessNotation(cell.coordinates)) {
       setSelectedCell(null);
     } else if (selectedCell && isPlayerPiece(selectedCell, turn)) {
-      const { cells: newCells, success } = movePiece(cells, selectedCell, cell, possibleMoves)
+      const { cells: newCells, success } = movePiece(cells, selectedCell, cell, possibleMoves);
       // The turn is over for the player only if movePiece succeeded.
       if (success) {
         setCells(newCells);

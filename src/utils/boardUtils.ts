@@ -1,5 +1,4 @@
-
-import type { Cell, CellColor } from '../type';
+import type { Cell, CellColor, Piece } from '../type';
 import { checkForCheck } from './gameStatusUtils';
 import {getDefaultPiece, toChessNotation, getCellColor} from './utils'
 
@@ -39,7 +38,13 @@ import {getDefaultPiece, toChessNotation, getCellColor} from './utils'
       return cell;
     });
 
-    return {cells: newCells, success: true};
+    //Takes care of pawnPromotion if a pawn is in position for it.
+    if ( (startCell.piece?.type === 'wP' && destinationCell.coordinates.row === 0) || (startCell.piece?.type === 'bP' && destinationCell.coordinates.row === 7)) {
+      const promotedCells = pawnPromotion(newCells);
+      return {cells: promotedCells, success: true}
+    } else {
+      return {cells: newCells, success: true};
+    }
   }
 
 
@@ -54,4 +59,22 @@ import {getDefaultPiece, toChessNotation, getCellColor} from './utils'
       }
     })
     return validMoves;
+  }
+
+  //For now, promotion automatically promotes the pawn to queen.
+  //TODO underpromotion
+  export function pawnPromotion(cells: Cell[]): Cell[]{
+
+    const newCells = cells.map( cell => {
+      if (cell.piece?.type === 'wP' && cell.coordinates.row === 0 ) {
+        //We need to enforce Piece type, otherwise, 'wQ' and 'bQ' are treated as simple strings,
+        //which causes a TS error
+        return {...cell, piece: {type: 'wQ', hasMoved: true} as Piece}
+      } else if (cell.piece?.type === 'bP' && cell.coordinates.row === 7 ) {
+        return {...cell, piece: {type: 'bQ', hasMoved: true} as Piece}
+      } else {
+        return cell
+      }});
+
+    return newCells
   }
