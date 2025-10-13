@@ -1,5 +1,5 @@
 import type { Cell, Move } from "../type";
-import { enPassant } from "../utils/boardUtils";
+import { enPassantMoves } from "../utils/boardUtils";
 import { isBlack, isEnemyPiece, getCellInfo } from '../utils/utils';
 
 export function pawnValidMoves(cells: Cell[], startCell: Cell, lastMove: Move | undefined): Cell[] {
@@ -50,7 +50,7 @@ export function pawnValidMoves(cells: Cell[], startCell: Cell, lastMove: Move | 
   });
 
   //Adding the en passant moves, if any (enPassant returns an empty array by default)
-  possibleMoves.push(...enPassant(cells, startCell, lastMove));
+  possibleMoves.push(...enPassantMoves(cells, startCell, lastMove));
 
   return possibleMoves;
 

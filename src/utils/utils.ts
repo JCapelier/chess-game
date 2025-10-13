@@ -1,4 +1,4 @@
-import type { Coordinates, CellColor, Piece, Cell, GameStatus } from '../type';
+import type { Coordinates, CellColor, Piece, Cell as CellType, GameStatus } from '../type';
 
 
   export function getCellColor(coordinates: Coordinates): CellColor {
@@ -53,7 +53,7 @@ import type { Coordinates, CellColor, Piece, Cell, GameStatus } from '../type';
     return `${file}${rank}`;
   }
 
-  export function playerKing(cells: Cell[], turn: CellColor) {
+  export function playerKing(cells: CellType[], turn: CellColor) {
     return turn === 'white' ? cells.find(cell => cell.piece?.type === 'wK') : cells.find(cell => cell.piece?.type === 'bK');
   }
 
@@ -65,7 +65,7 @@ import type { Coordinates, CellColor, Piece, Cell, GameStatus } from '../type';
     return piece !== null && piece.type.startsWith('b');
   }
 
-  export function isPlayerPiece(selectedCell: Cell, turn: CellColor): boolean {
+  export function isPlayerPiece(selectedCell: CellType, turn: CellColor): boolean {
     if (!selectedCell.piece) return false;
     return selectedCell.piece.type.at(0) === turn.at(0);
   }
@@ -74,7 +74,7 @@ import type { Coordinates, CellColor, Piece, Cell, GameStatus } from '../type';
     return ((isBlack(playingPiece) && isWhite(otherPiece)) || (isWhite(playingPiece) && isBlack(otherPiece)))
   }
 
-  export function getCellInfo(startCell: Cell) {
+  export function getCellInfo(startCell: CellType) {
     //This is used in some placing for easy destructuring from cell to usable info
     return {
       col: startCell.coordinates.col,
@@ -82,28 +82,72 @@ import type { Coordinates, CellColor, Piece, Cell, GameStatus } from '../type';
       piece: startCell.piece,
     };
   }
-
-  export function isPlayerKing(cell: Cell, gameStatus: GameStatus, turn: CellColor): boolean {
-    // We only use this function in case of check or checkmate.
-    if (gameStatus === 'playing' || gameStatus === 'stalemate') return false;
-
+  export function isPlayerKing(cell: CellType, turn: CellColor): boolean {
     if (turn === 'white') {
       return cell.piece?.type === "wK";
     } else if (turn === 'black') {
       return cell.piece?.type === 'bK';
     } else {
-      return false
+      return false;
     }
+  }
+
+  export function checkedPlayerKing(cell: CellType, gameStatus: GameStatus, turn: CellColor): boolean {
+    // We only use this function in case of check or checkmate, to select the king to highlight
+    if (gameStatus === 'playing' || gameStatus === 'stalemate') return false;
+    return isPlayerKing(cell, turn);
   }
 
   export function capitalize(str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
-  export function getSidesCells(cells: Cell[], playingCell: Cell): Cell[] {
+  export function getSidesCells(cells: CellType[], playingCell: CellType): CellType[] {
     // This is used for the 'en passant'. We only want to get the cells that are right next to the left or right of the playing cell.
     return cells.filter(cell =>
       cell.coordinates.row === playingCell.coordinates.row &&
       //Checking both col -1 and col + 1 (Math.abs(1))
       Math.abs(cell.coordinates.col - playingCell.coordinates.col) === 1)
+  }
+
+  //This next function only considers cells involved in a potential castling.
+  export function orderedInBetweenCells(cells: CellType[], kingCell: CellType, rookCell: CellType): CellType[] {
+    let inBetweenCells: CellType[] = [];
+    //We need to know if we have the left or right rook to check cells between rook and king.
+    if (rookCell.coordinates.col === 0) {
+      inBetweenCells = cells.filter(cell =>
+      cell.coordinates.row === kingCell.coordinates.row &&
+      cell.coordinates.col > rookCell.coordinates.col &&
+      cell.coordinates.col < kingCell.coordinates.col)
+      //We want to sort them as an outward movement for the king, to make an easier checkForCheck later in the castling process
+      .sort((a, b) => b.coordinates.col - a.coordinates.col);
+    } else {
+      inBetweenCells = cells.filter(cell =>
+      cell.coordinates.row === kingCell.coordinates.row &&
+      cell.coordinates.col > kingCell.coordinates.col &&
+      cell.coordinates.col < rookCell.coordinates.col)
+      .sort((a, b) => a.coordinates.col - b.coordinates.col);
+    }
+    return inBetweenCells;
+  }
+
+  export function areInBetweenCellsEmpty(cells: CellType[], kingCell: CellType, rookCell: CellType): boolean {
+    const inBetweenCells = orderedInBetweenCells(cells, kingCell, rookCell);
+    for (const cell of inBetweenCells) {
+      if (cell.piece) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  export function isCastlingMove(startCell: CellType, destinationCell: CellType, turn: CellColor) {
+    // If the players selects its king and then its rook, it's an attempted castling move
+    // This is just a quick check, because it only triggers when we know what are the valid moves.
+    // The actual logic of the move, which properly places the king and the rook, are in movePiece
+    return (
+      isPlayerKing(startCell, turn) &&
+      destinationCell.piece?.type.endsWith('R') &&
+      isPlayerPiece(destinationCell, turn)
+    );
   }

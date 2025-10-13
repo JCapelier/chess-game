@@ -1,7 +1,8 @@
-import type { Cell } from "../type";
+import type { Cell, CellColor, GameStatus, Move } from "../type";
 import { getCellInfo, isEnemyPiece } from '../utils/utils';
+import { castlingMoves } from '../utils/boardUtils'
 
-export function kingValidMoves(cells: Cell[], startCell: Cell): Cell[] {
+export function kingValidMoves(cells: Cell[], startCell: Cell, lastMove: Move | undefined, turn: CellColor, gameStatus: GameStatus): Cell[] {
 
   const { col, row, piece } = getCellInfo(startCell);
 
@@ -36,6 +37,8 @@ export function kingValidMoves(cells: Cell[], startCell: Cell): Cell[] {
       possibleMoves.push(destination)
     }
   })
+
+  possibleMoves.push(...castlingMoves(cells, lastMove, turn, gameStatus))
 
   return possibleMoves
 }

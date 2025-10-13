@@ -1,7 +1,7 @@
 import Cell from './Cell';
 import type { Cell as CellType, CellColor, GameStatus, Move } from '../type';
 import { useState, useEffect } from 'react';
-import { toChessNotation, isPlayerPiece, isPlayerKing } from '../utils/utils';
+import { toChessNotation, isPlayerPiece, checkedPlayerKing } from '../utils/utils';
 import { movePiece, setBoard } from '../utils/boardUtils';
 import { getPossibleMoves } from '../moves/moves';
 import GameHeader from './GameHeader';
@@ -15,31 +15,31 @@ export default function Board() {
   const [turn, setTurn] = useState<CellColor>('white');
   const [attackers, setAttackers] = useState<CellType[]>([])
   const [lastMove, setLastMove] = useState<Move | undefined>(undefined)
-  const possibleMoves: CellType[] = selectedCell ? getPossibleMoves(cells, selectedCell, lastMove, turn) : [];
+  const possibleMoves: CellType[] = selectedCell ? getPossibleMoves(cells, selectedCell, lastMove, turn, gameStatus) : [];
 
   useEffect(() => {
-    const { check, attackers } = checkForCheck(cells, lastMove, turn);
+    const { check, attackers } = checkForCheck(cells, lastMove, turn, gameStatus);
     if (check) {
-      if (isCheckmate(cells, lastMove, turn)) {
+      if (isCheckmate(cells, lastMove, turn, gameStatus)) {
         setGameStatus('checkmate');
       } else {
         setGameStatus('check');
       }
       setAttackers(attackers);
-    } else if (isStaleMate(cells, lastMove, turn)) {
+    } else if (isStaleMate(cells, lastMove, turn, gameStatus)) {
       setGameStatus('stalemate')
     } else {
       setGameStatus('playing');
       setAttackers([]);
     }
-  }, [cells, turn, lastMove]);
+  }, [cells, turn, lastMove, gameStatus]);
 
   const handleCellClick = (cell: CellType) => {
     // Clicking on the same cell again deselect the cell.
     if (selectedCell && toChessNotation(selectedCell.coordinates) === toChessNotation(cell.coordinates)) {
       setSelectedCell(null);
     } else if (selectedCell && isPlayerPiece(selectedCell, turn)) {
-      const { cells: newCells, success } = movePiece(cells, selectedCell, cell, lastMove, possibleMoves);
+      const { cells: newCells, success } = movePiece(cells, selectedCell, cell, lastMove, possibleMoves, turn);
       // The turn is over for the player only if movePiece succeeded.
       if (success) {
         // We can enforce the '!' because, if selectedCell had no piece, movePiece would return success: false
@@ -79,7 +79,7 @@ export default function Board() {
               isSelected={selectedCell ? toChessNotation(selectedCell.coordinates) === toChessNotation(cell.coordinates) : false}
               isPossibleDestination={possibleMoves.some(destination => toChessNotation(destination.coordinates) === toChessNotation(cell.coordinates))}
               isAttacker={attackers.some(attacker => toChessNotation(attacker.coordinates) === toChessNotation(cell.coordinates))}
-              isCheck={isPlayerKing(cell, gameStatus, turn) }
+              isCheck={checkedPlayerKing(cell, gameStatus, turn) }
             />
           )
         }
