@@ -1,10 +1,10 @@
-import type { Cell, CellColor } from "../type";
+import type { Cell, CellColor, Move } from "../type";
 import { isEnemyPiece, getCellInfo } from '../utils/utils';
 import { pawnValidMoves } from "./pawnMoves";
 import { rookValidMoves } from "./rookMoves";
 import { bishopValidMoves } from "./bishopMoves";
 import { knightValidMoves } from "./knightMoves";
-import { queenValidMoves } from "./queenValidMoves";
+import { queenValidMoves } from "./queenMoves";
 import { kingValidMoves } from "./kingMoves";
 import { filterMovesLeavingKingInCheck } from "../utils/boardUtils";
 
@@ -99,14 +99,14 @@ export function diagonalSlidingMoves(cells: Cell[], startCell: Cell): Cell[] {
 
 //Without the simulation boolean, we end in a loop, because filterMovesLeavingKingInCheck
 //calls checkForCheck which calls getPossibleMoves
-export function getPossibleMoves(cells: Cell[], startCell: Cell, turn: CellColor, simulation: boolean = false): Cell[] {
+export function getPossibleMoves(cells: Cell[], startCell: Cell, lastMove: Move | undefined, turn: CellColor, simulation: boolean = false): Cell[] {
   if (!startCell.piece) return [];
 
   let possibleMoves: Cell[] = []
   // The last letter of the type allows us to determine what move is possible.
   switch (startCell.piece.type.at(-1)) {
     case 'P':
-      possibleMoves = pawnValidMoves(cells, startCell);
+      possibleMoves = pawnValidMoves(cells, startCell, lastMove);
       break;
     case 'R':
       possibleMoves = rookValidMoves(cells, startCell);
@@ -127,6 +127,6 @@ export function getPossibleMoves(cells: Cell[], startCell: Cell, turn: CellColor
       return []
   }
 
-  return simulation === false ? filterMovesLeavingKingInCheck(cells, startCell, possibleMoves, turn) : possibleMoves;
+  return simulation === false ? filterMovesLeavingKingInCheck(cells, startCell, lastMove, possibleMoves, turn) : possibleMoves;
 
 }

@@ -99,3 +99,11 @@ import type { Coordinates, CellColor, Piece, Cell, GameStatus } from '../type';
   export function capitalize(str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
+
+  export function getSidesCells(cells: Cell[], playingCell: Cell): Cell[] {
+    // This is used for the 'en passant'. We only want to get the cells that are right next to the left or right of the playing cell.
+    return cells.filter(cell =>
+      cell.coordinates.row === playingCell.coordinates.row &&
+      //Checking both col -1 and col + 1 (Math.abs(1))
+      Math.abs(cell.coordinates.col - playingCell.coordinates.col) === 1)
+  }
