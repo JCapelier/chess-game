@@ -1,5 +1,5 @@
 import type { Cell } from "../type";
-import { orthogonalSlidingMoves, diagonalSlidingMoves } from "./moves";
+import { orthogonalSlidingMoves, diagonalSlidingMoves } from "./moveHelpers";
 
 export function queenValidMoves(cells: Cell[], startCell: Cell): Cell[] {
 
