@@ -1,3 +1,5 @@
+import Cell from "./components/Cell";
+
 export type GameStatus = 'playing' | 'check' | 'checkmate' | 'stalemate'
 
 export type Coordinates = {
@@ -27,3 +29,10 @@ export type CellProps = Cell & {
   isAttacker: boolean;
   isCheck: boolean;
 };
+
+export type Move = {
+  //The string will be chess notations
+  from: Cell;
+  to: Cell;
+  pieceType: Piece['type'];
+}
