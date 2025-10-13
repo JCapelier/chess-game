@@ -1,5 +1,5 @@
 import type { Cell } from "../type";
-import { diagonalSlidingMoves } from "../moves/moves";
+import { diagonalSlidingMoves } from "./moveHelpers";
 
 export function bishopValidMoves(cells: Cell[], startCell: Cell): Cell[] {
 

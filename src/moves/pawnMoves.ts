@@ -1,6 +1,7 @@
 import type { Cell, Move } from "../type";
-import { enPassantMoves } from "../utils/boardUtils";
-import { isBlack, isEnemyPiece, getCellInfo } from '../utils/utils';
+import { getCellInfo } from "../utils/boardUtils";
+import { isBlack, isEnemyPiece } from '../utils/pieceUtils';
+import { enPassantMoves } from "./specialMoves/pawnSpecialMoves";
 
 export function pawnValidMoves(cells: Cell[], startCell: Cell, lastMove: Move | undefined): Cell[] {
 

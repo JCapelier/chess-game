@@ -1,12 +1,6 @@
-import type { Cell, CellColor, Move, GameStatus } from "../type";
-import { isEnemyPiece, getCellInfo } from '../utils/utils';
-import { pawnValidMoves } from "./pawnMoves";
-import { rookValidMoves } from "./rookMoves";
-import { bishopValidMoves } from "./bishopMoves";
-import { knightValidMoves } from "./knightMoves";
-import { queenValidMoves } from "./queenMoves";
-import { kingValidMoves } from "./kingMoves";
-import { filterMovesLeavingKingInCheck } from "../utils/boardUtils";
+import type { Cell } from '../type';
+import { isEnemyPiece } from '../utils/pieceUtils';
+import { getCellInfo } from '../utils/boardUtils';
 
 // Generic function to scan in ordered directions for sliding pieces (rook, bishop, queen)
 export function checkOrderedCells(startCell: Cell, orderedCells: Cell[][]): Cell[] {
@@ -34,7 +28,6 @@ export function checkOrderedCells(startCell: Cell, orderedCells: Cell[][]): Cell
 // Even though orthogonal and diagonal sliding moves are the core of rookMoves and bishopMoves
 // they had to be extracted to be reused in the queenMoves.
 // rookValidMoves and bishopValidMoves both have guard clauses returning [] if the piece isn't a rook or a bishop respectively.
-
 export function orthogonalSlidingMoves(cells: Cell[], startCell: Cell): Cell[] {
 
   const { col, row } = getCellInfo(startCell);
@@ -95,38 +88,4 @@ export function diagonalSlidingMoves(cells: Cell[], startCell: Cell): Cell[] {
   const orderedCells = [topLeftCells, bottomRightCells, topRightCells, bottomLeftCells];
 
   return checkOrderedCells(startCell, orderedCells)
-}
-
-//Without the simulation boolean, we end in a loop, because filterMovesLeavingKingInCheck
-//calls checkForCheck which calls getPossibleMoves
-export function getPossibleMoves(cells: Cell[], startCell: Cell, lastMove: Move | undefined, turn: CellColor, gameStatus: GameStatus, simulation: boolean = false): Cell[] {
-  if (!startCell.piece) return [];
-
-  let possibleMoves: Cell[] = []
-  // The last letter of the type allows us to determine what move is possible.
-  switch (startCell.piece.type.at(-1)) {
-    case 'P':
-      possibleMoves = pawnValidMoves(cells, startCell, lastMove);
-      break;
-    case 'R':
-      possibleMoves = rookValidMoves(cells, startCell);
-      break;
-    case 'B':
-      possibleMoves = bishopValidMoves(cells, startCell);
-      break;
-    case 'N':
-      possibleMoves = knightValidMoves(cells, startCell);
-      break;
-    case 'Q':
-      possibleMoves = queenValidMoves(cells, startCell);
-      break;
-    case 'K':
-      possibleMoves = kingValidMoves(cells, startCell, lastMove, turn, gameStatus);
-      break;
-    default:
-      return []
-  }
-
-  return simulation === false ? filterMovesLeavingKingInCheck(cells, startCell, lastMove, possibleMoves, turn, gameStatus) : possibleMoves;
-
 }

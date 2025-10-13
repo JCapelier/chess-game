@@ -1,9 +1,11 @@
 import Cell from './Cell';
 import type { Cell as CellType, CellColor, GameStatus, Move } from '../type';
 import { useState, useEffect } from 'react';
-import { toChessNotation, isPlayerPiece, checkedPlayerKing } from '../utils/utils';
-import { movePiece, setBoard } from '../utils/boardUtils';
-import { getPossibleMoves } from '../moves/moves';
+import { toChessNotation } from '../utils/utils';
+import { isPlayerPiece, checkedPlayerKing } from '../utils/pieceUtils';
+import { setBoard } from '../utils/boardUtils';
+import { movePiece } from '../moves/movePiece';
+import { getPossibleMoves } from '../moves/possibleMoves';
 import GameHeader from './GameHeader';
 import { checkForCheck, isCheckmate, isStaleMate } from '../utils/gameStatusUtils';
 

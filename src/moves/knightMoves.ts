@@ -1,5 +1,6 @@
 import type { Cell } from "../type";
-import { getCellInfo, isEnemyPiece } from '../utils/utils';
+import { isEnemyPiece } from '../utils/pieceUtils';
+import { getCellInfo } from "../utils/boardUtils";
 
 export function knightValidMoves(cells: Cell[], startCell: Cell): Cell[] {
 

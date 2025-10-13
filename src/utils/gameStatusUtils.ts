@@ -1,6 +1,7 @@
-import { getPossibleMoves } from '../moves/moves';
+import { getPossibleMoves } from '../moves/possibleMoves';
 import type { Cell, CellColor, Move, GameStatus } from '../type';
-import { isPlayerPiece, toChessNotation } from './utils';
+import { toChessNotation } from './utils';
+import { isPlayerPiece } from './pieceUtils';
 
 export function checkForCheck(cells: Cell[], lastMove: Move | undefined, turn: CellColor, gameStatus: GameStatus, simulation: boolean = false):  {check: boolean, attackers: Cell[]} {
   // Find the king of the current turn's color
