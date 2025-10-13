@@ -1,6 +1,6 @@
-import type { Cell, CellColor, Piece, Move } from '../type';
+import type { Cell, CellColor, Piece, Move, GameStatus } from '../type';
 import { checkForCheck } from './gameStatusUtils';
-import { isBlack, getDefaultPiece, toChessNotation, getCellColor, getSidesCells} from './utils';
+import { isBlack, getDefaultPiece, toChessNotation, getCellColor, playerKing, isPlayerPiece, areInBetweenCellsEmpty, orderedInBetweenCells, isCastlingMove } from './utils';
 
 
   export function setBoard(): Cell[] {
@@ -22,25 +22,52 @@ import { isBlack, getDefaultPiece, toChessNotation, getCellColor, getSidesCells}
   }
 
   // movePiece must return an object with success: boolean, so that the Board can check if the turn is over after calling movePiece or not.
-  export function movePiece(cells: Cell[], startCell: Cell, destinationCell: Cell, lastMove: Move | undefined, possibleMoves: Cell[]): { cells: Cell[], success: boolean} {
+  export function movePiece(cells: Cell[], startCell: Cell, destinationCell: Cell, lastMove: Move | undefined, possibleMoves: Cell[], turn: CellColor): { cells: Cell[], success: boolean} {
     // For React to render again properly, always return a new array of updated cells. Never mutate directly the cell or the Cell[]
-    if (!isEnPassant(cells, startCell, destinationCell, lastMove) && !possibleMoves.some(destination => toChessNotation(destination.coordinates) === toChessNotation(destinationCell.coordinates))) return {cells: cells, success: false};
+    if (
+      !isCastlingMove(startCell, destinationCell, turn) &&
+      !isEnPassant(cells, startCell, destinationCell, lastMove) &&
+      !possibleMoves.some(destination => toChessNotation(destination.coordinates) === toChessNotation(destinationCell.coordinates)))
+      return {cells: cells, success: false};
 
     const newCells = cells.map(cell => {
       if (toChessNotation(cell.coordinates) === toChessNotation(startCell.coordinates)) {
         return { ...cell, piece: null };
       }
-      if (toChessNotation(cell.coordinates) === toChessNotation(destinationCell.coordinates)) {
+
+      if (!isCastlingMove(startCell, destinationCell, turn) && toChessNotation(cell.coordinates) === toChessNotation(destinationCell.coordinates)) {
         // This ! is legit : board component only allow the player to select a cell occupied by one of their pieces.
         return { ...cell, piece: { type: startCell.piece!.type, hasMoved: true }};
       }
+
       if (isEnPassant(cells, startCell, destinationCell, lastMove)) {
         //If isEnPassant, then we need to remove the piece in the cell that is in the row of the beginning of the move and the col at the end of the move. The one
-        //just below the destination cell. 
+        //just below the destination cell.
         const capturedRow = startCell.coordinates.row;
         const capturedCol = destinationCell.coordinates.col;
         if (cell.coordinates.row === capturedRow && cell.coordinates.col === capturedCol) {
           return { ...cell, piece: null };
+        }
+      }
+
+      if (isCastlingMove(startCell, destinationCell, turn)) {
+        // Find which side is being castled
+        const row = startCell.coordinates.row;
+        const isLeft = destinationCell.coordinates.col === 0;
+        const isRight = destinationCell.coordinates.col === 7;
+
+        if (isLeft) {
+          // King goes to col 2, rook to col 3
+          if (cell.coordinates.col === 4 && cell.coordinates.row === row) return { ...cell, piece: null }; // old king
+          if (cell.coordinates.col === 0 && cell.coordinates.row === row) return { ...cell, piece: null }; // old rook
+          if (cell.coordinates.col === 2 && cell.coordinates.row === row) return { ...cell, piece: { type: startCell.piece!.type, hasMoved: true }};
+          if (cell.coordinates.col === 3 && cell.coordinates.row === row) return { ...cell, piece: { type: destinationCell.piece!.type, hasMoved: true }};
+        } else if (isRight) {
+          // King goes to col 6, rook to col 5
+          if (cell.coordinates.col === 4 && cell.coordinates.row === row) return { ...cell, piece: null }; // old king
+          if (cell.coordinates.col === 7 && cell.coordinates.row === row) return { ...cell, piece: null }; // old rook
+          if (cell.coordinates.col === 6 && cell.coordinates.row === row) return { ...cell, piece: { type: startCell.piece!.type, hasMoved: true }};
+          if (cell.coordinates.col === 5 && cell.coordinates.row === row) return { ...cell, piece: { type: destinationCell.piece!.type, hasMoved: true }};
         }
       }
       return cell;
@@ -56,12 +83,12 @@ import { isBlack, getDefaultPiece, toChessNotation, getCellColor, getSidesCells}
   }
 
 
-  export function filterMovesLeavingKingInCheck(cells: Cell[], startCell: Cell, lastMove: Move | undefined, possibleMoves: Cell[], turn: CellColor): Cell[]{
+  export function filterMovesLeavingKingInCheck(cells: Cell[], startCell: Cell, lastMove: Move | undefined, possibleMoves: Cell[], turn: CellColor, gameStatus: GameStatus): Cell[]{
     const validMoves: Cell[] = [];
     possibleMoves.forEach(possibleMove => {
       // We're creating a copy of cells where the move would be accomplished, to check if playerKing would be in check or not
-      const {cells: simulatedBoard} = movePiece(cells, startCell, possibleMove, lastMove, possibleMoves);
-      const check = checkForCheck(simulatedBoard, lastMove, turn, true);
+      const {cells: simulatedBoard} = movePiece(cells, startCell, possibleMove, lastMove, possibleMoves, turn);
+      const check = checkForCheck(simulatedBoard, lastMove, turn, gameStatus, true);
       if (check.check === false) {
         validMoves.push(possibleMove);
       }
@@ -100,7 +127,7 @@ import { isBlack, getDefaultPiece, toChessNotation, getCellColor, getSidesCells}
 
 
   // This will be called in pawnValidMoves.
-  export function enPassant(cells: Cell[], playingCell: Cell, lastMove: Move | undefined): Cell[] {
+  export function enPassantMoves(cells: Cell[], playingCell: Cell, lastMove: Move | undefined): Cell[] {
     if (!lastMove || !hasPawnMovedTwoSquares(lastMove)) return [];
 
     const { row, col } = playingCell.coordinates;
@@ -133,10 +160,60 @@ import { isBlack, getDefaultPiece, toChessNotation, getCellColor, getSidesCells}
   }
 
   function isEnPassant(cells: Cell[], startCell: Cell, destinationCell: Cell, lastMove: Move | undefined): boolean {
-    const enPassantMoves = enPassant(cells, startCell, lastMove);
+    const enPassantValidMoves = enPassantMoves(cells, startCell, lastMove);
     // We checks if there's an en passant move with the current selected piece.
-    const isEnPassant = enPassantMoves.some(
+    const isEnPassant = enPassantValidMoves.some(
       cell => toChessNotation(cell.coordinates) === toChessNotation(destinationCell.coordinates)
     );
-    return isEnPassant
+    return isEnPassant;
+  }
+
+  export function castlingMoves(cells: Cell[], lastMove: Move | undefined, turn: CellColor, gameStatus: GameStatus): Cell[] {
+    const kingCell = playerKing(cells, turn);
+    const rookCells: Cell[] = cells.filter(cell => cell.piece?.type.endsWith('R') && isPlayerPiece(cell, turn));
+
+    if(!kingCell ||
+      kingCell.piece!.hasMoved === true ||
+      rookCells.every(rook => rook.piece!.hasMoved === true ||
+      gameStatus === 'check'
+      )) return [];
+
+    const leftRookCell = rookCells.find(rook => rook.coordinates.col === 0);
+    const rightRookCell = rookCells.find(rook => rook.coordinates.col === 7);
+
+    // We will add the rook as a valid destination, if castling is possible.
+    // In the end, to perform it, the player will need to click on the rook after selecting the king.
+    // The logic to get the proper destinations will be dealt with in movePiece.
+    const castlingMoves: Cell[] = [];
+    let canCastleLeft = true;
+    if (leftRookCell && areInBetweenCellsEmpty(cells, kingCell, leftRookCell)) {
+      const leftInBetweenCells: Cell[] = orderedInBetweenCells(cells, kingCell, leftRookCell)
+      for (const cell of leftInBetweenCells) {
+        //We're only passing the cell we're passing through as possibleMoves for the simulation
+        const {cells: simulatedBoard} = movePiece(cells, kingCell, cell, lastMove, [cell], turn);
+        const check = checkForCheck(simulatedBoard, lastMove, turn, gameStatus, true);
+        if (check.check === true) {
+          canCastleLeft = false;
+          break;
+        }
+      }
+      if (canCastleLeft) castlingMoves.push(leftRookCell);
+    }
+
+    let canCastleRight = true
+    if (rightRookCell && areInBetweenCellsEmpty(cells, kingCell, rightRookCell)) {
+      const leftInBetweenCells: Cell[] = orderedInBetweenCells(cells, kingCell, rightRookCell)
+      for (const cell of leftInBetweenCells) {
+        //We're only passing the cell we're passing through as possibleMoves for the simulation
+        const {cells: simulatedBoard} = movePiece(cells, kingCell, cell, lastMove, [cell], turn);
+        const check = checkForCheck(simulatedBoard, lastMove, turn, gameStatus, true);
+        if (check.check === true) {
+          canCastleRight = false;
+          break;
+        }
+      }
+      if (canCastleRight) castlingMoves.push(rightRookCell);
+    }
+
+    return castlingMoves;
   }

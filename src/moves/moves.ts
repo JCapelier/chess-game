@@ -1,4 +1,4 @@
-import type { Cell, CellColor, Move } from "../type";
+import type { Cell, CellColor, Move, GameStatus } from "../type";
 import { isEnemyPiece, getCellInfo } from '../utils/utils';
 import { pawnValidMoves } from "./pawnMoves";
 import { rookValidMoves } from "./rookMoves";
@@ -99,7 +99,7 @@ export function diagonalSlidingMoves(cells: Cell[], startCell: Cell): Cell[] {
 
 //Without the simulation boolean, we end in a loop, because filterMovesLeavingKingInCheck
 //calls checkForCheck which calls getPossibleMoves
-export function getPossibleMoves(cells: Cell[], startCell: Cell, lastMove: Move | undefined, turn: CellColor, simulation: boolean = false): Cell[] {
+export function getPossibleMoves(cells: Cell[], startCell: Cell, lastMove: Move | undefined, turn: CellColor, gameStatus: GameStatus, simulation: boolean = false): Cell[] {
   if (!startCell.piece) return [];
 
   let possibleMoves: Cell[] = []
@@ -121,12 +121,12 @@ export function getPossibleMoves(cells: Cell[], startCell: Cell, lastMove: Move 
       possibleMoves = queenValidMoves(cells, startCell);
       break;
     case 'K':
-      possibleMoves = kingValidMoves(cells, startCell);
+      possibleMoves = kingValidMoves(cells, startCell, lastMove, turn, gameStatus);
       break;
     default:
       return []
   }
 
-  return simulation === false ? filterMovesLeavingKingInCheck(cells, startCell, lastMove, possibleMoves, turn) : possibleMoves;
+  return simulation === false ? filterMovesLeavingKingInCheck(cells, startCell, lastMove, possibleMoves, turn, gameStatus) : possibleMoves;
 
 }
