@@ -61,6 +61,12 @@ export default function Board() {
     }
   }
 
+  const handleDragStart = (cell: CellType) => {
+    if (cell.piece && isPlayerPiece(cell, turn)) {
+      setSelectedCell(cell);
+    }
+  }
+
   const handleReset = ():void => {
     setCells(setBoard());
     setTurn('white');
@@ -80,6 +86,9 @@ export default function Board() {
               piece={cell.piece}
               cellColor={cell.cellColor}
               onCellClick={() => handleCellClick(cell)}
+              onDragStart={() => handleDragStart(cell)}
+              onDrop={() => handleCellClick(cell)}
+              onDragOver={e => e.preventDefault()}
               isSelected={selectedCell ? toChessNotation(selectedCell.coordinates) === toChessNotation(cell.coordinates) : false}
               isPossibleDestination={possibleMoves.some(destination => toChessNotation(destination.coordinates) === toChessNotation(cell.coordinates))}
               isAttacker={attackers.some(attacker => toChessNotation(attacker.coordinates) === toChessNotation(cell.coordinates))}

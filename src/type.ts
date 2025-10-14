@@ -24,6 +24,9 @@ export type Cell = {
 export type CellProps = Cell & {
   key: string;
   onCellClick: () => void;
+  onDragStart: () => void;
+  onDrop: () => void;
+  onDragOver: (event: React.DragEvent<HTMLDivElement>) => void;
   isSelected: boolean;
   isPossibleDestination: boolean;
   isAttacker: boolean;

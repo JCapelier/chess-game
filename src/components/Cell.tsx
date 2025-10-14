@@ -48,6 +48,8 @@ export default function Cell(props: CellProps) {
 
   return(
     <div
+      onDrop={props.onDrop}
+      onDragOver={props.onDragOver}
       className={`cell
         h-full w-auto max-w-full object-contain
         flex items-center justify-center
@@ -57,6 +59,8 @@ export default function Cell(props: CellProps) {
     >
       {props.piece && ( //The code in parenthesis runs only if props.piece
         <img
+          draggable
+          onDragStart={props.onDragStart}
           src={pieceImages[props.piece.type]}
           alt={`${pieceColor(props.piece)} ${getPieceTypeName(props.piece)}`}
           className="h-full w-auto max-w-full object-contain "
