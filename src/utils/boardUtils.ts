@@ -1,7 +1,6 @@
 import type { Cell, Coordinates, Piece, CellColor } from '../type';
 import { toChessNotation } from './utils';
 
-
   export function setBoard(): Cell[] {
     return Array.from({length: 64}, (_, i) => {
       const row = Math.floor(i / 8);

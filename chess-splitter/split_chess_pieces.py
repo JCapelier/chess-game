@@ -13,7 +13,7 @@ gap_y = 5
 cols = 6
 rows = 2
 
-piece_names = ["pawn", "bishop", "knight", "rook", "queen", "king"]
+piece_names = ["bishop", "king", "knight", "pawn", "queen", "rook"]
 colors = ["black", "white"]
 
 grid_start_x = 1

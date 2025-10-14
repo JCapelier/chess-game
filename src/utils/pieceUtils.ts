@@ -37,3 +37,19 @@ export function checkedPlayerKing(cell: Cell, gameStatus: GameStatus, turn: Cell
   if (gameStatus === 'playing' || gameStatus === 'stalemate') return false;
   return isPlayerKing(cell, turn);
 }
+
+export function pieceColor(piece: Piece): CellColor {
+  return isWhite(piece) ? 'white' : 'black';
+}
+
+export function getPieceTypeName(piece: Piece): string {
+  switch (piece.type.slice(-1)) {
+    case 'K': return 'King';
+    case 'Q': return 'Queen';
+    case 'R': return 'Rook';
+    case 'B': return 'Bishop';
+    case 'N': return 'Knight';
+    case 'P': return 'Pawn';
+    default: return 'Unknown';
+}
+}
