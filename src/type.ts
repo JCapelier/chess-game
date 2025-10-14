@@ -28,6 +28,7 @@ export type CellProps = Cell & {
   isPossibleDestination: boolean;
   isAttacker: boolean;
   isCheck: boolean;
+  isCastling: boolean;
 };
 
 export type Move = {

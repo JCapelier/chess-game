@@ -1,3 +1,4 @@
+import './Board.css';
 import Cell from './Cell';
 import type { Cell as CellType, CellColor, GameStatus, Move } from '../type';
 import { useState, useEffect } from 'react';
@@ -8,6 +9,7 @@ import { movePiece } from '../moves/movePiece';
 import { getPossibleMoves } from '../moves/possibleMoves';
 import GameHeader from './GameHeader';
 import { checkForCheck, isCheckmate, isStaleMate } from '../utils/gameStatusUtils';
+import { isCastlingMove } from '../moves/specialMoves/castlingMoves';
 
 export default function Board() {
 
@@ -70,7 +72,7 @@ export default function Board() {
   return(
     <>
       <GameHeader turn={turn} gameStatus={gameStatus} onClick={handleReset} />
-      <div className="grid grid-cols-8 grid-rows-8">
+      <div className="grid grid-cols-8 grid-rows-8" id="board">
         {cells.map(cell =>
             <Cell
               key={toChessNotation(cell.coordinates)}
@@ -82,6 +84,9 @@ export default function Board() {
               isPossibleDestination={possibleMoves.some(destination => toChessNotation(destination.coordinates) === toChessNotation(cell.coordinates))}
               isAttacker={attackers.some(attacker => toChessNotation(attacker.coordinates) === toChessNotation(cell.coordinates))}
               isCheck={checkedPlayerKing(cell, gameStatus, turn) }
+              isCastling={selectedCell ?
+                possibleMoves.some(move => toChessNotation(move.coordinates) === toChessNotation(cell.coordinates) && isCastlingMove(selectedCell, cell, turn))
+               : false}
             />
           )
         }
