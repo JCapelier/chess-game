@@ -11,22 +11,20 @@ import whiteRook from '../assets/pieces/white_rook.png';
 import whiteQueen from '../assets/pieces/white_queen.png';
 import whiteKing from '../assets/pieces/white_king.png';
 
-import type { CellProps, CellColor } from '../type';
+import type { CellProps } from '../type';
 import './Cell.css';
 import { getPieceTypeName, pieceColor } from '../utils/pieceUtils';
 
 export default function Cell(props: CellProps) {
-  const colorClass = (cellColor: CellColor, isSelected: boolean, isPossibleDestination: boolean, isAttacker: boolean, isCheck: boolean): string => {
+  const colorClass = (isSelected: boolean, isPossibleDestination: boolean, isAttacker: boolean, isCheck: boolean): string => {
     if (isPossibleDestination) {
-      return 'bg-green-500'
+      return 'bg-green-400/50 shadow-[0_0_12px_4px_rgba(34,197,94,0.5)]'
     } else if (isCheck || isAttacker) {
-      return 'bg-red-600'
+      return 'bg-red-500/50 shadow-[0_0_12px_4px_rgba(239,68,68,0.5)]'
     } else if (isSelected) {
-      return 'bg-purple-500'
-    } else if (!isSelected && cellColor === 'black') {
-      return 'bg-amber-700';
+      return 'bg-purple-500/50 shadow-[0_0_12px_4px_rgba(168,85,247,0.5)]'
     } else {
-      return 'bg-amber-200'
+      return ''
     }
   }
 
@@ -48,14 +46,14 @@ export default function Cell(props: CellProps) {
 
   return(
     <div
-      className={`w-20 h-20 ${colorClass(props.cellColor, props.isSelected, props.isPossibleDestination, props.isAttacker, props.isCheck)} flex items-center justify-center hover:bg-purple-500`}
+      className={`cell h-full w-auto max-w-full object-contain ${colorClass(props.isSelected, props.isPossibleDestination, props.isAttacker, props.isCheck)} flex items-center justify-center hover:bg-purple-500/50`}
       onClick={props.onCellClick}
     >
       {props.piece && ( //The code in parenthesis runs only if props.piece
         <img
           src={pieceImages[props.piece.type]}
           alt={`${pieceColor(props.piece)} ${getPieceTypeName(props.piece)}`}
-          className="h-full w-auto max-w-full object-contain"
+          className="h-full w-auto max-w-full object-contain "
         />
       )}
     </div>

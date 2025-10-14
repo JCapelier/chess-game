@@ -1,0 +1,12 @@
+#board {
+  background-image: url('/chess_board.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 1200px;  /* board image width */
+  height: 1201px; /* board image height */
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+}

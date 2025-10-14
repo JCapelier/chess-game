@@ -1,3 +1,4 @@
+import './Board.css';
 import Cell from './Cell';
 import type { Cell as CellType, CellColor, GameStatus, Move } from '../type';
 import { useState, useEffect } from 'react';
@@ -70,7 +71,7 @@ export default function Board() {
   return(
     <>
       <GameHeader turn={turn} gameStatus={gameStatus} onClick={handleReset} />
-      <div className="grid grid-cols-8 grid-rows-8">
+      <div className="grid grid-cols-8 grid-rows-8" id="board">
         {cells.map(cell =>
             <Cell
               key={toChessNotation(cell.coordinates)}
