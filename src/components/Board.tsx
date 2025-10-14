@@ -67,12 +67,13 @@ export default function Board() {
     }
   }
 
-  const handleReset = ():void => {
+  const handleReset = (): void => {
     setCells(setBoard());
     setTurn('white');
     setGameStatus('playing');
     setSelectedCell(null);
     setAttackers([]);
+    setLastMove(undefined);
   }
 
   return(
