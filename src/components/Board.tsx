@@ -67,18 +67,22 @@ export default function Board() {
     }
   }
 
-  const handleReset = ():void => {
+  const handleReset = (): void => {
     setCells(setBoard());
     setTurn('white');
     setGameStatus('playing');
     setSelectedCell(null);
     setAttackers([]);
+    setLastMove(undefined);
   }
 
   return(
     <>
       <GameHeader turn={turn} gameStatus={gameStatus} onClick={handleReset} />
-      <div className="grid grid-cols-8 grid-rows-8" id="board">
+      <div
+        id="board"
+        className="w-full max-w-[min(90vw,90vh)] aspect-square mx-auto grid grid-cols-8 grid-rows-8"
+      >
         {cells.map(cell =>
             <Cell
               key={toChessNotation(cell.coordinates)}
