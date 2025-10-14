@@ -16,15 +16,17 @@ import './Cell.css';
 import { getPieceTypeName, pieceColor } from '../utils/pieceUtils';
 
 export default function Cell(props: CellProps) {
-  const colorClass = (isSelected: boolean, isPossibleDestination: boolean, isAttacker: boolean, isCheck: boolean): string => {
-    if (isPossibleDestination) {
-      return 'bg-green-400/50 shadow-[0_0_12px_4px_rgba(34,197,94,0.5)]'
+  const colorClass = (isSelected: boolean, isPossibleDestination: boolean, isAttacker: boolean, isCheck: boolean, isCastling: boolean): string => {
+    if (isCastling) {
+        return 'bg-blue-500/40 shadow-[0_0_12px_4px_rgba(59,130,246,0.5)]';
     } else if (isCheck || isAttacker) {
-      return 'bg-red-500/50 shadow-[0_0_12px_4px_rgba(239,68,68,0.5)]'
+        return 'bg-red-500/50 shadow-[0_0_12px_4px_rgba(239,68,68,0.5)]';
+    } else if (isPossibleDestination) {
+        return 'bg-green-400/50 shadow-[0_0_12px_4px_rgba(34,197,94,0.5)]';
     } else if (isSelected) {
-      return 'bg-purple-500/50 shadow-[0_0_12px_4px_rgba(168,85,247,0.5)]'
+        return 'bg-purple-500/50 shadow-[0_0_12px_4px_rgba(168,85,247,0.5)]';
     } else {
-      return ''
+        return '';
     }
   }
 
@@ -46,7 +48,11 @@ export default function Cell(props: CellProps) {
 
   return(
     <div
-      className={`cell h-full w-auto max-w-full object-contain ${colorClass(props.isSelected, props.isPossibleDestination, props.isAttacker, props.isCheck)} flex items-center justify-center hover:bg-purple-500/50`}
+      className={`cell
+        h-full w-auto max-w-full object-contain
+        flex items-center justify-center
+        hover:bg-purple-500/50
+        ${colorClass(props.isSelected, props.isPossibleDestination, props.isAttacker, props.isCheck, props.isCastling)}`}
       onClick={props.onCellClick}
     >
       {props.piece && ( //The code in parenthesis runs only if props.piece

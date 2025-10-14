@@ -9,6 +9,7 @@ import { movePiece } from '../moves/movePiece';
 import { getPossibleMoves } from '../moves/possibleMoves';
 import GameHeader from './GameHeader';
 import { checkForCheck, isCheckmate, isStaleMate } from '../utils/gameStatusUtils';
+import { isCastlingMove } from '../moves/specialMoves/castlingMoves';
 
 export default function Board() {
 
@@ -83,6 +84,9 @@ export default function Board() {
               isPossibleDestination={possibleMoves.some(destination => toChessNotation(destination.coordinates) === toChessNotation(cell.coordinates))}
               isAttacker={attackers.some(attacker => toChessNotation(attacker.coordinates) === toChessNotation(cell.coordinates))}
               isCheck={checkedPlayerKing(cell, gameStatus, turn) }
+              isCastling={selectedCell ?
+                possibleMoves.some(move => toChessNotation(move.coordinates) === toChessNotation(cell.coordinates) && isCastlingMove(selectedCell, cell, turn))
+               : false}
             />
           )
         }

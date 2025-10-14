@@ -53,13 +53,13 @@ export function castlingMoves(cells: Cell[], lastMove: Move | undefined, turn: C
   return castlingMoves;
 }
 
-export function isCastlingMove(startCell: Cell, destinationCell: Cell, turn: CellColor) {
+export function isCastlingMove(startCell: Cell, destinationCell: Cell, turn: CellColor): boolean {
   // If the players selects its king and then its rook, it's an attempted castling move
   // This is just a quick check, because it only triggers when we know what are the valid moves.
   // The actual logic of the move, which properly places the king and the rook, are in movePiece
   return (
     isPlayerKing(startCell, turn) &&
-    destinationCell.piece?.type.endsWith('R') &&
+    destinationCell.piece?.type.endsWith('R') === true &&
     isPlayerPiece(destinationCell, turn)
   );
 }
