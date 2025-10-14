@@ -63,7 +63,7 @@ export default function Cell(props: CellProps) {
           onDragStart={props.onDragStart}
           src={pieceImages[props.piece.type]}
           alt={`${pieceColor(props.piece)} ${getPieceTypeName(props.piece)}`}
-          className="h-full w-auto max-w-full object-contain "
+          className="w-[80%] h-[80%] object-contain max-w-full max-h-full"
         />
       )}
     </div>
