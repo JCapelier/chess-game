@@ -26,5 +26,15 @@ This project is a simple chess game built with React and TypeScript. It is inten
    ```sh
    npm run dev
    ```
-3. Open [http://localhost:5173](http://localhost:5173) in your browser.
 
+## Python Scripts (chess-splitter)
+If you want to use the Python scripts in `chess-splitter/`, you should create your own virtual environment. **Do not commit your `venv/` folder to the repository.**
+
+To set up a Python virtual environment and install dependencies:
+
+```sh
+python3 -m venv venv
+source venv/bin/activate
+```
+
+This is the standard workflow for Python projects. The `venv/` folder is specific to your machine and should always be in `.gitignore`.
