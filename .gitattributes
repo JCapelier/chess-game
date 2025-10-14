@@ -1,0 +1,2 @@
+# Ignore Python virtual environment from GitHub language stats
+venv/* linguist-vendored
