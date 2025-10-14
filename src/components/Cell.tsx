@@ -60,7 +60,28 @@ export default function Cell(props: CellProps) {
       {props.piece && ( //The code in parenthesis runs only if props.piece
         <img
           draggable
-          onDragStart={props.onDragStart}
+          onDragStart={e => {
+            // Clone the actual image node for a pixel-perfect drag ghost. Only way for the ghost to adapt its size.
+            const target = e.target as HTMLImageElement;
+            if (props.piece && target) {
+              const clone = target.cloneNode(true) as HTMLImageElement;
+              // Copy computed styles for the node. The final values that decides what appears on screen.
+              const style = window.getComputedStyle(target);
+              clone.style.width = style.width;
+              clone.style.height = style.height;
+              clone.style.objectFit = style.objectFit;
+              clone.style.maxWidth = style.maxWidth;
+              clone.style.maxHeight = style.maxHeight;
+              // We drag a copy of the clone, the clone itself is hidden off-screen
+              clone.style.position = 'absolute';
+              clone.style.top = '-9999px';
+              document.body.appendChild(clone);
+              e.dataTransfer.setDragImage(clone, clone.width / 2, clone.height / 2);
+              // Remove the clone after a short delay
+              setTimeout(() => document.body.removeChild(clone), 0);
+            }
+            if (props.onDragStart) props.onDragStart();
+          }}
           src={pieceImages[props.piece.type]}
           alt={`${pieceColor(props.piece)} ${getPieceTypeName(props.piece)}`}
           className="w-[80%] h-[80%] object-contain max-w-full max-h-full"
