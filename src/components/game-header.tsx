@@ -1,21 +1,28 @@
 import type { CellColor, GameStatus } from '../type';
+
 import { capitalize } from '../utils/utils';
 
-type GameHeaderProps = {
-  turn: CellColor,
-  gameStatus: GameStatus,
-  onClick: () => void
-}
+//Multiple types are needed to comply with the no-mixed-types rule. It's allowed for advanced types.
+type GameHeaderData = {
+  gameStatus: GameStatus;
+  turn: CellColor;
+};
 
-export default function GameHeader (props: GameHeaderProps) {
-  let statusMessage = '';
-  if (props.gameStatus === 'check') {
-    statusMessage = 'Check!';
-  } else if (props.gameStatus === 'checkmate') {
-    statusMessage = 'Checkmate!';
-  } else if (props.gameStatus === 'stalemate') {
-    statusMessage = 'Stalemate ...';
-  }
+type GameHeaderHandlers = {
+  onClick: () => void;
+};
+
+type GameHeaderProps = GameHeaderData & GameHeaderHandlers;
+
+const STATUS_MAP = {
+  check: 'Check!',
+  checkmate: 'Checkmate!',
+  playing: '',
+  stalemate: 'Stalemate ...',
+} satisfies Record<GameStatus, string>;
+
+export default function GameHeader (props: Readonly<GameHeaderProps>) {
+  const statusMessage = STATUS_MAP[props.gameStatus] ?? '';
 
   return(
     <>
@@ -25,7 +32,7 @@ export default function GameHeader (props: GameHeaderProps) {
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-full">
             <span className={
               'text-2xl md:text-3xl font-extrabold ' +
-              (props.gameStatus === 'check' ? 'text-red-500' : props.gameStatus === 'checkmate' ? 'text-red-700' : 'text-blue-600')
+              (props.gameStatus === 'check' ? 'text-red-500' : (props.gameStatus === 'checkmate' ? 'text-red-700' : 'text-blue-600'))
             }>
               {statusMessage}
             </span>
@@ -45,5 +52,5 @@ export default function GameHeader (props: GameHeaderProps) {
         </button>
       </div>
     </>
-  )
+  );
 }

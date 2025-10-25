@@ -1,7 +1,8 @@
 import type { Cell } from "../type";
-import { orthogonalSlidingMoves, diagonalSlidingMoves } from "./moveHelpers";
 
-export function queenValidMoves(cells: Cell[], startCell: Cell): Cell[] {
+import { diagonalSlidingMoves, orthogonalSlidingMoves } from "./move-helpers";
+
+export function queenValidMoves(cells: Readonly<Cell[]>, startCell: Readonly<Cell>): Cell[] {
 
   if (!startCell.piece || !startCell.piece.type.endsWith('Q')) return [];
 
