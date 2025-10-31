@@ -1,11 +1,11 @@
-import type { Cell } from "../type";
+import type { Cell, MoveContext } from "../type";
 
 import { getCellInfo } from "../utils/board-utils";
 import { isEnemyPiece } from '../utils/piece-utils';
 
-export function knightValidMoves(cells: Readonly<Cell[]>, startCell: Readonly<Cell>): Cell[] {
+export function knightValidMoves(context: Readonly<MoveContext>): Cell[] {
 
-  const { col, piece, row } = getCellInfo(startCell);
+  const { col, piece, row } = getCellInfo(context.startCell);
 
   if (!piece || !piece.type.endsWith('N')) return [];
 
@@ -20,7 +20,7 @@ export function knightValidMoves(cells: Readonly<Cell[]>, startCell: Readonly<Ce
   const destinations: Cell[] = knightDirections.flatMap(direction => {
     const destinationRow = row + direction.directionRow;
     const destinationCol = col + direction.directionCol;
-    const destinationCell = cells.find(cell =>
+    const destinationCell = context.cells.find(cell =>
       cell.coordinates.row === destinationRow &&
       cell.coordinates.col === destinationCol
     );

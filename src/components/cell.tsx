@@ -1,4 +1,4 @@
-import type { CellProps as CellProperties } from '../type';
+import type { CellProps } from '../type';
 
 import blackBishop from '../assets/pieces/black_bishop.png';
 import blackKing from '../assets/pieces/black_king.png';
@@ -13,10 +13,10 @@ import whitePawn from '../assets/pieces/white_pawn.png';
 import whiteQueen from '../assets/pieces/white_queen.png';
 import whiteRook from '../assets/pieces/white_rook.png';
 import './Cell.css';
-import { getPieceTypeName, pieceColor } from '../utils/piece-utils';
+import { capitalize } from '../utils/utils';
 
 
-export default function Cell(properties: Readonly<CellProperties>) {
+export default function Cell(props: Readonly<CellProps>) {
   //Mapping object to render the proper piece
   const pieceImages: { [key: string]: string } = {
     bB: blackBishop,
@@ -39,20 +39,20 @@ export default function Cell(properties: Readonly<CellProperties>) {
       h-full w-auto max-w-full object-contain
       flex items-center justify-center
       hover:bg-purple-500/50
-      ${colorClass(properties.isSelected, properties.isPossibleDestination, properties.isAttacker, properties.isCheck, properties.isCastling)}`}
-      onClick={properties.onCellClick}
-      onDragOver={properties.onDragOver}
-      onDrop={properties.onDrop}
+      ${colorClass(props.isSelected, props.isPossibleDestination, props.isAttacker, props.isCheck, props.isCastling)}`}
+      onClick={props.onCellClick}
+      onDragOver={props.onDragOver}
+      onDrop={props.onDrop}
       >
-      {properties.piece && ( //The code in parenthesis runs only if props.piece
+      {props.piece && ( //The code in parenthesis runs only if props.piece
         <img
-        alt={`${pieceColor(properties.piece)} ${getPieceTypeName(properties.piece)}`}
+        alt={`${capitalize(props.piece.color)} ${props.piece.type}`}
         className="w-[80%] h-[80%] object-contain max-w-full max-h-full"
         draggable
         onDragStart={event => {
           // Clone the actual image node for a pixel-perfect drag ghost. Only way for the ghost to adapt its size.
           const target = event.target as HTMLImageElement;
-          if (properties.piece && target) {
+          if (props.piece && target) {
             const clone = target.cloneNode(true) as HTMLImageElement;
             const style = globalThis.getComputedStyle(target);
             // The immutability is important for data structures, but it shouldn't forbid any DOM manipulation.
@@ -72,9 +72,9 @@ export default function Cell(properties: Readonly<CellProperties>) {
           }
 
           // Call optional handler if provided
-          properties.onDragStart?.();
+          props.onDragStart?.();
         }}
-        src={pieceImages[properties.piece.type]}
+        src={pieceImages[props.piece.symbol]}
         />
       )}
     </div>

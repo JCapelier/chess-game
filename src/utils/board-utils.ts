@@ -2,6 +2,10 @@ import type { Cell, CellColor, Coordinates, Piece } from '../type';
 
 import { toChessNotation } from './utils';
 
+  export function getCellByLocation(cells: Readonly<Cell[]>, location: Readonly<Coordinates>): Cell | undefined {
+    return cells.find(cell => cell.coordinates.row === location.row && cell.coordinates.col === location.col);
+  }
+
   export function getCellColor(coordinates: Readonly<Coordinates>): CellColor {
     return (coordinates.row + coordinates.col) % 2 === 0 ? 'black' : 'white';
   }

@@ -1,10 +1,10 @@
-import type { Cell } from "../type";
+import type { Cell, MoveContext } from "../type";
 
 import { diagonalSlidingMoves } from "./move-helpers";
 
-export function bishopValidMoves(cells: Readonly<Cell[]>, startCell: Readonly<Cell>): Cell[] {
+export function bishopValidMoves(context: Readonly<MoveContext>): Cell[] {
 
-  if (!startCell.piece || !startCell.piece.type.endsWith('B')) return [];
+  if (!context.startCell.piece || !context.startCell.piece.type.endsWith('B')) return [];
 
-  return diagonalSlidingMoves(cells, startCell);
+  return diagonalSlidingMoves(context.cells, context.startCell);
 }

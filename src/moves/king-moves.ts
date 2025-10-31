@@ -4,7 +4,7 @@ import { getCellInfo } from "../utils/board-utils";
 import { isEnemyPiece } from '../utils/piece-utils';
 import { castlingMoves } from "./special-moves/castling-moves";
 
-export function kingValidMoves(cells: Readonly<Cell[]>, startCell: Readonly<Cell>, lastMove: Readonly<Move | undefined>, turn: CellColor, gameStatus: GameStatus): Cell[] {
+export function validMoves(cells: Readonly<Cell[]>, startCell: Readonly<Cell>, lastMove: Readonly<Move | undefined>, turn: CellColor, gameStatus: GameStatus): Cell[] {
 
   const { col, piece, row } = getCellInfo(startCell);
 

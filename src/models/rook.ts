@@ -1,0 +1,18 @@
+import type { Cell, CellColor, Coordinates, MoveContext } from "../type";
+
+import { orthogonalSlidingMoves } from "../moves/move-helpers";
+import { ChessPiece, PieceType } from "./chess-piece";
+
+export class Rook extends ChessPiece {
+  constructor(color: Readonly<CellColor>, location: Readonly<Coordinates>, hasMoved: boolean = false) {
+    super(PieceType.Rook, color, location, hasMoved);
+  }
+
+  validMoves(context: Readonly<MoveContext>): Cell[] {
+
+    if (!context.startCell.piece || !context.startCell.piece.type.endsWith('R')) return [];
+
+    return orthogonalSlidingMoves(context.cells, context.startCell);
+  }
+
+}
