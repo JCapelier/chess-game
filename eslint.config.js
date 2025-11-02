@@ -46,6 +46,10 @@ export default defineConfig([
       'functional/functional-parameters': 'off',
       'functional/no-return-void': 'off',
       'functional/no-expression-statements': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { 'argsIgnorePattern': '^_' }
+        ],
       // Allow common abbreviations like 'utils'
       'unicorn/prevent-abbreviations': [
         'error',
@@ -86,5 +90,11 @@ export default defineConfig([
       'functional/no-class-inheritance': 'off',
       'semi': ['error', 'always'],
     },
+  },
+  {
+    files: ['**/*.{ts,tsx}'],
+    rules: {
+
+    }
   },
 ])

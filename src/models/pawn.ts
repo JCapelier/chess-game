@@ -1,21 +1,20 @@
-import type { Cell, CellColor, Coordinates, Move, MoveContext } from '../type';
-
+import { type Cell, CellColor, type Coordinates, type Move, type MoveContext } from '../type';
 import { getCellInfo } from '../utils/board-utils';
 import { createPieceFromPrototype } from '../utils/piece-factory';
 import { toChessNotation } from '../utils/utils';
-import { ChessPiece, PieceType } from './chess-piece';
+import { ChessPiece } from './chess-piece';
 import { Queen } from './queen';
 
 export class Pawn extends ChessPiece {
   constructor(color: CellColor, location: Readonly<Coordinates>, hasMoved: boolean = false) {
-    super(PieceType.Pawn, color, location, hasMoved);
+    super(color, location, hasMoved);
   }
 
   static pawnPromotion(cells: Readonly<Cell[]>): Cell[]{
     return cells.map( cell => {
       return cell.piece instanceof Pawn &&
-      ((cell.piece.color === 'white' && cell.coordinates.row === 0) ||
-      (cell.piece.color === 'black' && cell.coordinates.row === 7)) ? {...cell, piece: Pawn.promotePawnToQueen(cell.piece)} : cell;
+      ((cell.piece.color === CellColor.White && cell.coordinates.row === 0) ||
+      (cell.piece.color === CellColor.Black && cell.coordinates.row === 7)) ? {...cell, piece: Pawn.promotePawnToQueen(cell.piece)} : cell;
     });
   }
 

@@ -1,44 +1,16 @@
-import type { Cell, CellColor, Coordinates, MoveContext } from "../type";
-
 import { getPossibleMoves } from "../moves/possible-moves";
+import { type Cell, CellColor, type Coordinates, type MoveContext, type PieceSymbol } from "../type";
 import { createPieceFromPrototype } from '../utils/piece-factory';
 import { toChessNotation } from "../utils/utils";
 import { King } from "./king";
-
-export enum PieceSymbol {
-  BlackBishop = "bB",
-  BlackKing = "bK",
-  BlackKnight = "bN",
-  BlackPawn = "bP",
-  BlackQueen = "bQ",
-  BlackRook = "bR",
-  WhiteBishop = "wB",
-  WhiteKing = "wK",
-  WhiteKnight = "wN",
-  WhitePawn = "wP",
-  WhiteQueen = "wQ",
-  WhiteRook = "wR",
-}
-
-export enum PieceType {
-  Bishop = "Bishop",
-  King = "King",
-  Knight = "Knight",
-  Pawn = "Pawn",
-  Queen = "Queen",
-  Rook = "Rook",
-}
-
 
 export class ChessPiece {
   color: CellColor;
   hasMoved: boolean;
   location: Coordinates;
   symbol: PieceSymbol;
-  type: PieceType;
 
-  constructor(type: PieceType, color: CellColor, location: Readonly<Coordinates>, hasMoved: boolean = false) {
-    this.type = type;
+  constructor(color: CellColor, location: Readonly<Coordinates>, hasMoved: boolean = false) {;
     this.color = color;
     this.symbol = this.getPieceSymbol();
     this.hasMoved = hasMoved;
@@ -51,19 +23,13 @@ export class ChessPiece {
   }
 
   getPieceSymbol(): PieceSymbol {
-    const typeMap: Record<PieceType, string> = {
-      [PieceType.Bishop]: "B",
-      [PieceType.King]: "K",
-      [PieceType.Knight]: "N",
-      [PieceType.Pawn]: "P",
-      [PieceType.Queen]: "Q",
-      [PieceType.Rook]: "R",
-    };
-    return (this.color[0] + typeMap[this.type]) as PieceSymbol;
+    const exceptions: Record<string, string> = { "Knight": "N" };
+    const letter = exceptions[this.constructor.name] || this.constructor.name[0];
+    return (this.color[0] + letter) as PieceSymbol;
   }
 
   isBlack() {
-    return this.color === 'black';
+    return this.color === CellColor.Black;
   }
 
   isEnemyPiece(piece: Readonly<ChessPiece>) {
@@ -98,10 +64,8 @@ export class ChessPiece {
       );
     }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  validMoves(context: Readonly<MoveContext>): Cell[] {
+  validMoves(_context: Readonly<MoveContext>): Cell[] {
     // Default: no moves
     return [];
   }
-
 }

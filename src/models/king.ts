@@ -1,18 +1,17 @@
-import type {Cell, CellColor, Coordinates, MoveContext } from '../type';
-
+import { type Cell, type CellColor, type Coordinates, GameStatus, type MoveContext } from '../type';
 import { getCellInfo } from '../utils/board-utils';
 import { checkForCheck } from '../utils/game-status-utils';
 import { createPieceFromPrototype } from '../utils/piece-factory';
 import { isPlayerPiece, playerKing } from '../utils/piece-utils';
 import { toChessNotation } from '../utils/utils';
-import { ChessPiece, PieceType } from "./chess-piece";
+import { ChessPiece } from "./chess-piece";
 import { Rook } from './rook';
 
 
 export class King extends ChessPiece {
 
   constructor(color: CellColor, location: Readonly<Coordinates>, hasMoved: boolean = false) {
-    super(PieceType.King, color, location, hasMoved);
+    super(color, location, hasMoved);
   }
 
   areInBetweenCellsEmpty(cells: Readonly<Cell[]>, kingCell: Readonly<Cell>, rookCell: Readonly<Cell>): boolean {
@@ -48,7 +47,7 @@ export class King extends ChessPiece {
     if(!kingCell ||
       kingCell.piece!.hasMoved === true ||
       rookCells.every(rook => rook.piece!.hasMoved === true) ||
-      context.gameStatus === 'check'
+      context.gameStatus === GameStatus.Check
     ) return [];
 
     const leftRookCell = rookCells.find(rook => rook.coordinates.col === 0);

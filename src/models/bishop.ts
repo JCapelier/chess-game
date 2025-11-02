@@ -1,11 +1,11 @@
 import type { Cell, CellColor, Coordinates, MoveContext } from '../type';
 
 import { diagonalSlidingMoves } from "../moves/move-helpers";
-import { ChessPiece, PieceType } from "./chess-piece";
+import { ChessPiece } from "./chess-piece";
 
 export class Bishop extends ChessPiece {
   constructor(color: CellColor, location: Readonly<Coordinates>, hasMoved: boolean = false) {
-    super(PieceType.Bishop, color, location, hasMoved);
+    super(color, location, hasMoved);
   }
 
   validMoves(context: Readonly<MoveContext>): Cell[] {

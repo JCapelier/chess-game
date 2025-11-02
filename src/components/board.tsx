@@ -1,10 +1,9 @@
 import './board.css';
 import { useEffect, useState } from 'react';
 
-import type { CellColor, Cell as CellType, GameStatus, Move } from '../type';
-
 import { King } from '../models/king';
 import { getPossibleMoves } from '../moves/possible-moves';
+import { CellColor, type Cell as CellType, GameStatus, type Move } from '../type';
 import { getContext, setBoard } from '../utils/board-utils';
 import { checkForCheck, isCheckmate, isStaleMate } from '../utils/game-status-utils';
 import { checkedPlayerKing, isPlayerPiece } from '../utils/piece-utils';
@@ -13,12 +12,13 @@ import Cell from './cell';
 import GameHeader from './game-header';
 
 
+
 export default function Board() {
 
-  const [gameStatus, setGameStatus] = useState<GameStatus>('playing');
+  const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.Playing);
   const [cells, setCells] = useState<CellType[]>(setBoard());
   const [selectedCell, setSelectedCell] = useState<CellType | undefined>();
-  const [turn, setTurn] = useState<CellColor>('white');
+  const [turn, setTurn] = useState<CellColor>(CellColor.White);
   const [attackers, setAttackers] = useState<CellType[]>([]);
   const [lastMove, setLastMove] = useState<Move | undefined>();
   const possibleMoves: CellType[] = selectedCell ? getPossibleMoves({cells: cells, gameStatus: gameStatus, lastMove: lastMove, startCell: selectedCell, turn: turn}) : [];
@@ -31,15 +31,15 @@ export default function Board() {
     const { attackers, check } = checkForCheck(context);
     if (check) {
       if (isCheckmate(context)) {
-        setGameStatus('checkmate');
+        setGameStatus(GameStatus.Check);
       } else {
-        setGameStatus('check');
+        setGameStatus(GameStatus.Check);
       }
       setAttackers(attackers);
     } else if (isStaleMate(context)) {
-      setGameStatus('stalemate');
+      setGameStatus(GameStatus.Stalemate);
     } else {
-      setGameStatus('playing');
+      setGameStatus(GameStatus.Playing);
       setAttackers([]);
     }
   }, [cells, turn, lastMove, gameStatus, selectedCell]);
@@ -59,7 +59,7 @@ export default function Board() {
         const newMove = { from: selectedCell, piece: selectedCell.piece!, to: cell };
         setLastMove(newMove);
         setCells(newCells);
-        setTurn(turn === 'white' ? 'black' : 'white');
+        setTurn(turn === CellColor.White ? CellColor.Black : CellColor.White);
         // useEffect runs there
       }
       setSelectedCell(undefined);
@@ -82,8 +82,8 @@ export default function Board() {
 
   const handleReset = (): void => {
     setCells(setBoard());
-    setTurn('white');
-    setGameStatus('playing');
+    setTurn(CellColor.White);
+    setGameStatus(GameStatus.Playing);
     setSelectedCell(undefined);
     setAttackers([]);
     setLastMove(undefined);

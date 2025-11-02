@@ -1,19 +1,19 @@
-import type { Cell, CellColor, Coordinates, GameStatus, Move, MoveContext } from '../type';
-
 import { Bishop } from '../models/bishop';
 import { King } from '../models/king';
 import { Knight } from '../models/knight';
 import { Pawn } from '../models/pawn';
 import { Queen } from '../models/queen';
 import { Rook } from '../models/rook';
+import { type Cell, CellColor, type Coordinates, type GameStatus, type Move, type MoveContext } from '../type';
 import { toChessNotation } from './utils';
+
 
 export function getCellByLocation(cells: Readonly<Cell[]>, location: Readonly<Coordinates>): Cell | undefined {
   return cells.find(cell => cell.coordinates.row === location.row && cell.coordinates.col === location.col);
 }
 
 export function getCellColor(coordinates: Readonly<Coordinates>): CellColor {
-  return (coordinates.row + coordinates.col) % 2 === 0 ? 'black' : 'white';
+  return (coordinates.row + coordinates.col) % 2 === 0 ? CellColor.Black : CellColor.White;
 }
 
 export function getCellInfo(startCell: Readonly<Cell>) {
@@ -45,13 +45,13 @@ export function getDefaultPiece(coordinates: Readonly<Coordinates>) {
   const { col, row } = coordinates;
   const color: CellColor | undefined =
     (row === 0 || row === 1)
-      ? 'black'
+      ? CellColor.Black
       : ((row === 6 || row === 7)
-        ? 'white'
+        ? CellColor.White
         : undefined);
 
-  const firstRank = color === 'black' ? 0 : 7;
-  const pawnRank = color === 'black' ? 1 : 6;
+  const firstRank = color === CellColor.Black ? 0 : 7;
+  const pawnRank = color === CellColor.Black ? 1 : 6;
 
   if (color && row === pawnRank) return new Pawn(color, { col, row }, false);
 

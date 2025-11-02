@@ -1,7 +1,6 @@
-import type { Cell, MoveContext } from '../type';
-
 import { King } from '../models/king';
 import { getPossibleMoves } from '../moves/possible-moves';
+import { type Cell, CellColor, type MoveContext } from '../type';
 import { isPlayerPiece } from './piece-utils';
 import { toChessNotation } from './utils';
 
@@ -11,7 +10,7 @@ export function checkForCheck(context: Readonly<MoveContext>):  {attackers: Cell
   if (!kingCell) return { attackers: [], check: false };
 
   // Find all enemy pieces
-  const enemyColor = context.turn === 'white' ? 'black' : 'white';
+  const enemyColor = context.turn === CellColor.White ? CellColor.Black : CellColor.White;
   const enemyCells = context.cells.filter(cell => cell.piece && cell.piece.color === enemyColor);
 
   const attacks: Cell[] = enemyCells.filter(cell => {
