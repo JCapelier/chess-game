@@ -127,13 +127,13 @@ export default function Cell(props: Readonly<CellProps>) {
 
 function colorClass(isSelected: boolean, isPossibleDestination: boolean, isAttacker: boolean, isCheck: boolean, isCastling: boolean): string {
   if (isCastling) {
-      return 'bg-blue-500/40 shadow-[0_0_12px_4px_rgba(59,130,246,0.5)]';
+    return 'bg-blue-500/40 shadow-[0_0_12px_4px_rgba(59,130,246,0.5)]';
+  } else if (isPossibleDestination) {
+    return 'bg-green-400/50 shadow-[0_0_12px_4px_rgba(34,197,94,0.5)]';
+  } else if (isSelected) {
+    return 'bg-purple-500/50 shadow-[0_0_12px_4px_rgba(168,85,247,0.5)]';
   } else if (isCheck || isAttacker) {
       return 'bg-red-500/50 shadow-[0_0_12px_4px_rgba(239,68,68,0.5)]';
-  } else if (isPossibleDestination) {
-      return 'bg-green-400/50 shadow-[0_0_12px_4px_rgba(34,197,94,0.5)]';
-  } else if (isSelected) {
-      return 'bg-purple-500/50 shadow-[0_0_12px_4px_rgba(168,85,247,0.5)]';
   } else {
       return '';
   }

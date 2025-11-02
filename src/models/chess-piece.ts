@@ -103,5 +103,4 @@ export class ChessPiece {
     // Default: no moves
     return [];
   }
-
 }
