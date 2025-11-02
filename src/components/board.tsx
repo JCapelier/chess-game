@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { King } from '../models/king';
 import { getPossibleMoves } from '../moves/possible-moves';
-import { CellColor, type Cell as CellType, GameStatus, type Move } from '../type';
+import { CellColor, type Cell as CellType, type GameState, GameStatus, type Move } from '../type';
 import { getContext, setBoard } from '../utils/board-utils';
 import { checkForCheck, isCheckmate, isStaleMate } from '../utils/game-status-utils';
 import { checkedPlayerKing, isPlayerPiece } from '../utils/piece-utils';
@@ -21,6 +21,7 @@ export default function Board() {
   const [turn, setTurn] = useState<CellColor>(CellColor.White);
   const [attackers, setAttackers] = useState<CellType[]>([]);
   const [lastMove, setLastMove] = useState<Move | undefined>();
+  const [gameStates, setGameStates] = useState<GameState[]>([]);
   const possibleMoves: CellType[] = selectedCell ? getPossibleMoves({cells: cells, gameStatus: gameStatus, lastMove: lastMove, startCell: selectedCell, turn: turn}) : [];
   const castlingMoves: CellType[] = selectedCell && selectedCell.piece instanceof King ? selectedCell.piece.castlingMoves({cells: cells, gameStatus: gameStatus, lastMove: lastMove, startCell: selectedCell, turn: turn}) : [];
 
@@ -60,6 +61,7 @@ export default function Board() {
         setLastMove(newMove);
         setCells(newCells);
         setTurn(turn === CellColor.White ? CellColor.Black : CellColor.White);
+        setGameStates([...gameStates, {cells: cells, gameStatus: gameStatus, lastMove: lastMove, turn: turn,}]);
         // useEffect runs there
       }
       setSelectedCell(undefined);
@@ -87,11 +89,26 @@ export default function Board() {
     setSelectedCell(undefined);
     setAttackers([]);
     setLastMove(undefined);
+    setGameStates([]);
+  };
+
+  const handleUndo = () => {
+    if (gameStates.length === 0) return;
+
+    const previousState = gameStates.at(-1)!;
+    const newHistory = gameStates.slice(0, -1);
+
+    setCells(previousState.cells);
+    setTurn(previousState.turn);
+    setGameStatus(previousState.gameStatus);
+    setLastMove(previousState.lastMove);
+    setGameStates(newHistory);
+    setSelectedCell(undefined);
   };
 
   return(
     <>
-      <GameHeader gameStatus={gameStatus} onClick={handleReset} turn={turn} />
+      <GameHeader canUndo={gameStates.length > 0} gameStatus={gameStatus} onReset={handleReset} onUndo={handleUndo} turn={turn} />
       <div
         className="w-full max-w-[min(90vw,90vh)] aspect-square mx-auto grid grid-cols-8 grid-rows-8"
         id="board"

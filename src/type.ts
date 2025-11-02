@@ -51,6 +51,13 @@ export type Coordinates = {
   row: number;
 };
 
+export interface GameState {
+  cells: Cell[];
+  gameStatus: GameStatus;
+  lastMove?: Move;
+  turn: CellColor
+}
+
 export interface Move {
   from: Cell;
   piece: ChessPiece;
