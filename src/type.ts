@@ -1,18 +1,37 @@
-import { Bishop } from './models/bishop';
-import { King } from './models/king';
-import { Knight } from './models/knight';
-import { Pawn } from './models/pawn';
-import { Queen } from './models/queen';
-import { Rook } from './models/rook';
+import type { ChessPiece } from './models/chess-piece';
 
-
-export type Cell = {
-  cellColor: CellColor;
-  coordinates: Coordinates;
-  piece?: Piece;
+export enum CellColor {
+  Black = 'black',
+  White = 'white',
 };
 
-export type CellColor = 'black' | 'white'
+export enum GameStatus {
+  Check = 'check',
+  Checkmate = 'checkmate',
+  Playing = 'playing',
+  Stalemate = 'stalemate',
+};
+
+export enum PieceSymbol {
+  BlackBishop = "bB",
+  BlackKing = "bK",
+  BlackKnight = "bN",
+  BlackPawn = "bP",
+  BlackQueen = "bQ",
+  BlackRook = "bR",
+  WhiteBishop = "wB",
+  WhiteKing = "wK",
+  WhiteKnight = "wN",
+  WhitePawn = "wP",
+  WhiteQueen = "wQ",
+  WhiteRook = "wR",
+};
+
+export interface Cell {
+  cellColor: CellColor;
+  coordinates: Coordinates;
+  piece?: ChessPiece;
+};
 
 export type CellProps = Cell & {
   isAttacker: boolean;
@@ -32,14 +51,11 @@ export type Coordinates = {
   row: number;
 };
 
-export type GameStatus = 'check' | 'checkmate' | 'playing' | 'stalemate'
-
-export type Move = {
-  //The string will be chess notations
+export interface Move {
   from: Cell;
-  piece: Piece;
+  piece: ChessPiece;
   to: Cell;
-}
+};
 
 export interface MoveContext {
   cells: Readonly<Cell[]>;
@@ -47,7 +63,4 @@ export interface MoveContext {
   lastMove?: Readonly<Move>;
   startCell?: Readonly<Cell>;
   turn: CellColor;
-  // Add more properties as needed for special moves
-}
-
-export type Piece = Bishop | King | Knight | Pawn | Queen | Rook;
+};

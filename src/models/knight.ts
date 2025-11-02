@@ -1,11 +1,11 @@
 import type { Cell, CellColor, Coordinates, MoveContext } from "../type";
 
 import { getCellInfo } from "../utils/board-utils";
-import { ChessPiece, PieceType } from "./chess-piece";
+import { ChessPiece } from "./chess-piece";
 
 export class Knight extends ChessPiece {
   constructor(color: Readonly<CellColor>, location: Readonly<Coordinates>, hasMoved: boolean = false) {
-    super(PieceType.Knight, color, location, hasMoved);
+    super(color, location, hasMoved);
   }
 
 

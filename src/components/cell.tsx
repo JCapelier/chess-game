@@ -48,7 +48,7 @@ export default function Cell(props: Readonly<CellProps>) {
       >
       {props.piece && ( //The code in parenthesis runs only if props.piece
         <img
-        alt={`${capitalize(props.piece.color)} ${props.piece.type}`}
+        alt={`${capitalize(props.piece.color)} ${props.piece.constructor.name}`}
         className="w-[80%] h-[80%] object-contain max-w-full max-h-full"
         draggable
         onDragStart={event => {
