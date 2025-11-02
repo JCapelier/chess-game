@@ -10,8 +10,8 @@ export class Bishop extends ChessPiece {
 
   validMoves(context: Readonly<MoveContext>): Cell[] {
 
-    if (!context.startCell.piece || !context.startCell.piece.type.endsWith('B')) return [];
+    if (!(context.startCell!.piece && context.startCell!.piece instanceof Bishop)) return [];
 
-    return diagonalSlidingMoves(context.cells, context.startCell);
+    return diagonalSlidingMoves(context.cells, context.startCell!);
   }
 }

@@ -10,9 +10,9 @@ export class Rook extends ChessPiece {
 
   validMoves(context: Readonly<MoveContext>): Cell[] {
 
-    if (!context.startCell.piece || !context.startCell.piece.type.endsWith('R')) return [];
+    if (!(context.startCell!.piece && context.startCell!.piece instanceof Rook)) return [];
 
-    return orthogonalSlidingMoves(context.cells, context.startCell);
+    return orthogonalSlidingMoves(context.cells, context.startCell!);
   }
 
 }

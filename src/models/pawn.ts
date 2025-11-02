@@ -1,6 +1,7 @@
 import type { Cell, CellColor, Coordinates, Move, MoveContext } from '../type';
 
 import { getCellInfo } from '../utils/board-utils';
+import { createPieceFromPrototype } from '../utils/piece-factory';
 import { toChessNotation } from '../utils/utils';
 import { ChessPiece, PieceType } from './chess-piece';
 import { Queen } from './queen';
@@ -10,27 +11,31 @@ export class Pawn extends ChessPiece {
     super(PieceType.Pawn, color, location, hasMoved);
   }
 
+  static pawnPromotion(cells: Readonly<Cell[]>): Cell[]{
+    return cells.map( cell => {
+      return cell.piece instanceof Pawn &&
+      ((cell.piece.color === 'white' && cell.coordinates.row === 0) ||
+      (cell.piece.color === 'black' && cell.coordinates.row === 7)) ? {...cell, piece: Pawn.promotePawnToQueen(cell.piece)} : cell;
+    });
+  }
+
+  static promotePawnToQueen(pawn: Readonly<Pawn>) {
+    return new Queen(pawn.color, pawn.location, true);
+  }
+
   //For now, promotion automatically promotes the pawn to queen.
   //TODO underpromotion
-  static pawnPromotion(cells: Readonly<Cell[]>): Cell[]{
-    const newCells = cells.map( cell => {
-      if (cell.piece?.symbol === 'wP' && cell.coordinates.row === 0 ) {
-        //We need to enforce Piece type, otherwise, 'wQ' and 'bQ' are treated as simple strings,
-        //which causes a TS error
-        return {...cell, piece: new Queen('white', cell.coordinates, true)};
-      } else if (cell.piece?.symbol === 'bP' && cell.coordinates.row === 7 ) {
-        return {...cell, piece: new Queen('black', cell.coordinates, true)};
-      } else {
-        return cell;
-      }});
 
-    return newCells;
+  captureEnPassant(cell: Readonly<Cell>, startCell: Readonly<Cell>, destinationCell: Readonly<Cell>) {
+    const capturedRow = startCell.coordinates.row;
+    const capturedCol = destinationCell.coordinates.col;
+    if (cell.coordinates.row === capturedRow && cell.coordinates.col === capturedCol) return {...cell, piece: undefined};
   }
-  
-  enPassantMoves(cells: Readonly<Cell[]>, playingCell: Readonly<Cell>, lastMove: Readonly<Move | undefined>): Cell[] {
-    if (!lastMove || !this.hasPawnMovedTwoSquares(lastMove)) return [];
 
-    const { col, row } = playingCell.coordinates;
+  enPassantMoves(context: Readonly<MoveContext>): Cell[] {
+    if (!context.lastMove || !this.hasPawnMovedTwoSquares(context.lastMove)) return [];
+
+    const { col, row } = context.startCell!.coordinates;
     const pawnDirection = this.isBlack() ? 1 : -1;
     const enPassantRow = row + pawnDirection;
 
@@ -42,11 +47,12 @@ export class Pawn extends ChessPiece {
     .filter(targetCol =>
       targetCol >= 0 &&
       targetCol <= 7 &&
-      lastMove.to.coordinates.row === row &&
-      lastMove.to.coordinates.col === targetCol
+      context.lastMove &&
+      context.lastMove.to.coordinates.row === row &&
+      context.lastMove.to.coordinates.col === targetCol
     )
     .map(targetCol =>
-      cells.find(cell =>
+      context.cells.find(cell =>
         cell.coordinates.row === enPassantRow &&
         cell.coordinates.col === targetCol &&
         !cell.piece
@@ -59,7 +65,7 @@ export class Pawn extends ChessPiece {
 
   //We're just checking the last move, for 'en passant', we don't consider the status of every pawn.
   hasPawnMovedTwoSquares(lastMove?: Readonly<Move | undefined>): boolean {
-    if (!lastMove! || !lastMove.pieceType.endsWith('P')) return false;
+    if (!lastMove || !(lastMove.piece instanceof Pawn)) return false;
 
     const startRow = lastMove.from.coordinates.row;
     const endRow = lastMove.to.coordinates.row;
@@ -68,8 +74,8 @@ export class Pawn extends ChessPiece {
     return (Math.abs(endRow - startRow) === 2) ? true : false;
   }
 
-  isEnPassant(cells: Readonly<Cell[]>, startCell: Readonly<Cell>, destinationCell: Readonly<Cell>, lastMove: Readonly<Move | undefined>): boolean {
-    const enPassantValidMoves = this.enPassantMoves(cells, startCell, lastMove);
+  isEnPassant(context: Readonly<MoveContext>, destinationCell: Readonly<Cell>): boolean {
+    const enPassantValidMoves = this.enPassantMoves(context);
     // We checks if there's an en passant move with the current selected piece.
     const isEnPassant = enPassantValidMoves.some(
       cell => toChessNotation(cell.coordinates) === toChessNotation(destinationCell.coordinates)
@@ -78,11 +84,29 @@ export class Pawn extends ChessPiece {
   }
 
 
+  movePiece(context: Readonly<MoveContext>, destinationCell: Readonly<Cell>, simulation: boolean = false): {cells: Cell[], success: boolean} {
+    if (!this.canMove(context, destinationCell, simulation)) return {cells: [...context.cells], success: false};
+
+    const newCells: Cell[] = context.cells.map(cell => {
+      if (toChessNotation(cell.coordinates) === toChessNotation(this.location)) {
+        return {...cell, piece: undefined};
+      } else if (toChessNotation(cell.coordinates) === toChessNotation(destinationCell.coordinates)) {
+        return {...cell, piece: createPieceFromPrototype(this.color, true, cell.coordinates, this) };
+      } else if (this.isEnPassant(context, destinationCell)) {
+        const captured = this.captureEnPassant(cell, context.startCell!, destinationCell);
+        return captured ?? cell;
+      } else {
+        return cell;
+      }
+    });
+      return {cells: Pawn.pawnPromotion(newCells), success: true};
+  };
+
+
   validMoves(context: Readonly<MoveContext>): Cell[] {
-    const { col, piece, row } = getCellInfo(context.startCell);
+    const { col, piece, row } = getCellInfo(context.startCell!);
 
-    if (!piece || !piece.type.endsWith('P')) return [];
-
+    if (!(context.startCell!.piece && context.startCell!.piece instanceof Pawn)) return [];
 
     //White moving up, black moving down
     const direction = this.isBlack() ? 1 : -1;
@@ -114,10 +138,9 @@ export class Pawn extends ChessPiece {
 
     return [
       ...(oneCellAhead && !oneCellAhead.piece) ? [oneCellAhead] : [],
-      ...(!piece.hasMoved && oneCellAhead && !oneCellAhead.piece && twoCellsAhead && !twoCellsAhead.piece) ? [twoCellsAhead] : [],
+      ...(!piece!.hasMoved && oneCellAhead && !oneCellAhead.piece && twoCellsAhead && !twoCellsAhead.piece) ? [twoCellsAhead] : [],
       ...dialgonalCaptures,
-      ...this.enPassantMoves(context.cells, context.startCell, context.lastMove)
+      ...this.enPassantMoves(context)
     ];
   }
-
 }

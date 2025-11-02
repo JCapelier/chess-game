@@ -8,13 +8,14 @@ export class Queen extends ChessPiece {
   constructor(color: Readonly<CellColor>, location: Readonly<Coordinates>, hasMoved: boolean = false) {
       super(PieceType.Queen, color, location, hasMoved);
     }
+
   validMoves(context: Readonly<MoveContext>): Cell[] {
 
-    if (!context.startCell.piece || !context.startCell.piece.type.endsWith('Q')) return [];
+    if (!(context.startCell!.piece && context.startCell!.piece instanceof Queen)) return [];
 
     return [
-      ...orthogonalSlidingMoves(context.cells, context.startCell),
-      ...diagonalSlidingMoves(context.cells, context.startCell)
+      ...orthogonalSlidingMoves(context.cells, context.startCell!),
+      ...diagonalSlidingMoves(context.cells, context.startCell!)
     ];
   }
 }

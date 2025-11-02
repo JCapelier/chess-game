@@ -1,12 +1,13 @@
-import type { Cell, CellColor, GameStatus, Move } from '../type';
+import type { Cell, MoveContext } from '../type';
 
 import { checkForCheck } from '../utils/game-status-utils';
-import { movePiece } from './move-piece';
 
-  export function filterMovesLeavingKingInCheck(cells: Readonly<Cell[]>, startCell: Readonly<Cell>, lastMove: Readonly<Move | undefined>, possibleMoves: Readonly<Cell[]>, turn: CellColor, gameStatus: GameStatus): Cell[]{
+
+  export function filterMovesLeavingKingInCheck(context: Readonly<MoveContext>, possibleMoves: Readonly<Cell[]>): Cell[]{
     const validMoves: Cell[] = possibleMoves.flatMap(possibleMove => {
-      const {cells: simulatedBoard} = movePiece(cells, startCell, possibleMove, lastMove, possibleMoves, turn);
-      const check = checkForCheck(simulatedBoard, lastMove, turn, gameStatus, true);
+      const {cells: simulatedBoard} = context.startCell!.piece!.movePiece(context, possibleMove, true);
+      const simulatedContext: MoveContext = {...context, cells: simulatedBoard};
+      const check = checkForCheck(simulatedContext, true);
       return (check.check === false) ? [possibleMove] : [];
     });
     return validMoves;

@@ -37,16 +37,16 @@ export type GameStatus = 'check' | 'checkmate' | 'playing' | 'stalemate'
 export type Move = {
   //The string will be chess notations
   from: Cell;
-  pieceType: Piece['type'];
+  piece: Piece;
   to: Cell;
 }
 
 export interface MoveContext {
   cells: Readonly<Cell[]>;
-  gameStatus?: GameStatus;
+  gameStatus: GameStatus;
   lastMove?: Readonly<Move>;
-  startCell: Readonly<Cell>;
-  turn?: CellColor;
+  startCell?: Readonly<Cell>;
+  turn: CellColor;
   // Add more properties as needed for special moves
 }
 

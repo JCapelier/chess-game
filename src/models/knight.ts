@@ -11,9 +11,9 @@ export class Knight extends ChessPiece {
 
   validMoves(context: Readonly<MoveContext>): Cell[] {
 
-    const { col, piece, row } = getCellInfo(context.startCell);
+    const { col, row } = getCellInfo(context.startCell!);
 
-    if (!piece || !piece.type.endsWith('N')) return [];
+    if (!(context.startCell!.piece && context.startCell!.piece instanceof Knight)) return [];
 
     // Here, we list every possible direction for the knight. We'll then apply them to the start position to check where it lands.
     const KNIGHT_DIRECTIONS = [

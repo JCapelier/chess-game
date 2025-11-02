@@ -1,10 +1,13 @@
-import type {Cell, CellColor, Coordinates, GameStatus, Move, MoveContext } from '../type';
+import type {Cell, CellColor, Coordinates, MoveContext } from '../type';
 
-import { movePiece } from '../moves/move-piece';
 import { getCellInfo } from '../utils/board-utils';
 import { checkForCheck } from '../utils/game-status-utils';
-import { isPlayerKing, isPlayerPiece, playerKing } from '../utils/piece-utils';
+import { createPieceFromPrototype } from '../utils/piece-factory';
+import { isPlayerPiece, playerKing } from '../utils/piece-utils';
+import { toChessNotation } from '../utils/utils';
 import { ChessPiece, PieceType } from "./chess-piece";
+import { Rook } from './rook';
+
 
 export class King extends ChessPiece {
 
@@ -17,36 +20,78 @@ export class King extends ChessPiece {
     return !inBetweenCells.some(cell => cell.piece);
   }
 
-  castlingMoves(cells: Readonly<Cell[]>, lastMove: Readonly<Move | undefined>, turn: CellColor, gameStatus: GameStatus): Cell[] {
-    const kingCell = playerKing(cells, turn);
-    const rookCells: Cell[] = cells.filter(cell => cell.piece?.type.endsWith('R') && isPlayerPiece(cell, turn));
+  castle(cell: Readonly<Cell>, destinationCell: Readonly<Cell>) {
+    const row = this.location.row;
+    const isLeft = destinationCell.coordinates.col === 0;
+    const isRight = destinationCell.coordinates.col === 7;
+
+    if (isLeft) {
+      // King goes to col 2, rook to col 3
+      // Old king to undefined is taken care of by a previous if statement.
+      if (cell.coordinates.col === 0 && cell.coordinates.row === row) return { ...cell, piece: undefined }; // old rook
+      if (cell.coordinates.col === 2 && cell.coordinates.row === row) return { ...cell, piece: createPieceFromPrototype(this.color, true, cell.coordinates, this) };
+      if (cell.coordinates.col === 3 && cell.coordinates.row === row) return { ...cell, piece: createPieceFromPrototype(destinationCell.piece!.color, true, cell.coordinates, destinationCell.piece!) };
+    } else if (isRight) {
+      // King goes to col 6, rook to col 5
+      if (cell.coordinates.col === 7 && cell.coordinates.row === row) return { ...cell, piece: undefined }; // old rook
+      if (cell.coordinates.col === 6 && cell.coordinates.row === row) return { ...cell, piece: createPieceFromPrototype(this.color, true, cell.coordinates, this) };
+      if (cell.coordinates.col === 5 && cell.coordinates.row === row) return { ...cell, piece: createPieceFromPrototype(destinationCell.piece!.color, true, cell.coordinates, destinationCell.piece!) };
+    }
+    return cell;
+  }
+
+
+  castlingMoves(context: Readonly<MoveContext>): Cell[] {
+    const kingCell = playerKing(context.cells, context.turn);
+    const rookCells: Cell[] = context.cells.filter(cell => cell.piece instanceof Rook && isPlayerPiece(context, cell));
 
     if(!kingCell ||
       kingCell.piece!.hasMoved === true ||
-      rookCells.every(rook => rook.piece!.hasMoved === true ||
-      gameStatus === 'check'
-      )) return [];
+      rookCells.every(rook => rook.piece!.hasMoved === true) ||
+      context.gameStatus === 'check'
+    ) return [];
 
     const leftRookCell = rookCells.find(rook => rook.coordinates.col === 0);
     const rightRookCell = rookCells.find(rook => rook.coordinates.col === 7);
 
-    // We will add the rook as a valid destination, if castling is possible.
-    // The Boolean() syntax allows us to satisfy the immutability rule
+    // Check if castling is possible without recursively calling movePiece
     const canCastleLeft = Boolean(
       leftRookCell &&
-      this.areInBetweenCellsEmpty(cells, kingCell, leftRookCell) &&
-      !this.orderedInBetweenCells(cells, kingCell, leftRookCell).some(cell => {
-        const { cells: simulatedBoard } = movePiece(cells, kingCell, cell, lastMove, [cell], turn);
-        return checkForCheck(simulatedBoard, lastMove, turn, gameStatus, true).check === true;
+      leftRookCell.piece!.hasMoved === false &&
+      this.areInBetweenCellsEmpty(context.cells, kingCell, leftRookCell) &&
+      !this.orderedInBetweenCells(context.cells, kingCell, leftRookCell).some(cell => {
+        // Simulate king movement manually without calling movePiece to avoid recursion
+        const simulatedBoard = context.cells.map(boardCell => {
+          if (toChessNotation(boardCell.coordinates) === toChessNotation(kingCell.coordinates)) {
+            return { ...boardCell, piece: undefined };
+          } else if (toChessNotation(boardCell.coordinates) === toChessNotation(cell.coordinates)) {
+            return { ...boardCell, piece: createPieceFromPrototype(this.color, true, boardCell.coordinates, this) };
+          } else {
+            return boardCell;
+          }
+        });
+        const simulatedContext: MoveContext = {...context, cells: simulatedBoard};
+        return checkForCheck(simulatedContext).check === true;
       })
     );
 
     const canCastleRight = Boolean(
       rightRookCell &&
-      this.areInBetweenCellsEmpty(cells, kingCell, rightRookCell) &&
-      !this.orderedInBetweenCells(cells, kingCell, rightRookCell).some(cell => {
-        const { cells: simulatedBoard } = movePiece(cells, kingCell, cell, lastMove, [cell], turn);
-        return checkForCheck(simulatedBoard, lastMove, turn, gameStatus, true).check === true;
+      rightRookCell.piece!.hasMoved === false &&
+      this.areInBetweenCellsEmpty(context.cells, kingCell, rightRookCell) &&
+      !this.orderedInBetweenCells(context.cells, kingCell, rightRookCell).some(cell => {
+        // Simulate king movement manually without calling movePiece to avoid recursion
+        const simulatedBoard = context.cells.map(boardCell => {
+          if (toChessNotation(boardCell.coordinates) === toChessNotation(kingCell.coordinates)) {
+            return { ...boardCell, piece: undefined };
+          } else if (toChessNotation(boardCell.coordinates) === toChessNotation(cell.coordinates)) {
+            return { ...boardCell, piece: createPieceFromPrototype(this.color, true, boardCell.coordinates, this) };
+          } else {
+            return boardCell;
+          }
+        });
+        const simulatedContext: MoveContext = {...context, cells: simulatedBoard};
+        return checkForCheck(simulatedContext).check === true;
       })
     );
 
@@ -56,24 +101,46 @@ export class King extends ChessPiece {
     ];
   }
 
-    getSidesCells(cells: Readonly<Cell[]>, playingCell: Readonly<Cell>): Cell[] {
+   getSidesCells(cells: Readonly<Cell[]>, playingCell: Readonly<Cell>): Cell[] {
     // This is used for the 'en passant'. We only want to get the cells that are right next to the left or right of the playing cell.
     return cells.filter(cell =>
       cell.coordinates.row === playingCell.coordinates.row &&
       //Checking both col -1 and col + 1 (Math.abs(1))
       Math.abs(cell.coordinates.col - playingCell.coordinates.col) === 1);
-  }
+    }
 
-  isCastlingMove(startCell: Readonly<Cell>, destinationCell: Readonly<Cell>, turn: CellColor): boolean {
+  isCastlingMove(context: Readonly<MoveContext>, destinationCell: Readonly<Cell>): boolean {
     // If the players selects its king and then its rook, it's an attempted castling move
     // This is just a quick check, because it only triggers when we know what are the valid moves.
     // The actual logic of the move, which properly places the king and the rook, are in movePiece
     return (
-      isPlayerKing(startCell, turn) &&
-      destinationCell.piece?.type.endsWith('R') === true &&
-      isPlayerPiece(destinationCell, turn)
+      this.isPlayerKing(context.turn!) &&
+      destinationCell.piece instanceof Rook &&
+      isPlayerPiece(context, destinationCell)
     );
   }
+  movePiece(context: Readonly<MoveContext>, destinationCell: Readonly<Cell>, simulation: boolean = false): {cells: Cell[], success: boolean} {
+    // During simulation, skip canMove check for castling simulation to prevent recursion
+    if (!simulation && !this.canMove(context, destinationCell, simulation)) {
+      return {cells: [...context.cells], success: false};
+    }
+
+    if (!simulation && destinationCell.piece instanceof King) return { cells: [...context.cells], success: false };
+
+    const newCells: Cell[] = context.cells.map(cell => {
+      if (toChessNotation(cell.coordinates) === toChessNotation(this.location)) {
+        return { ...cell, piece: undefined };
+      } else if (!simulation && this.isCastlingMove(context, destinationCell)) {
+        // Only handle castling logic when not in simulation
+        return this.castle(cell, destinationCell) ?? cell;
+      } else if (toChessNotation(cell.coordinates) === toChessNotation(destinationCell.coordinates)) {
+        return { ...cell, piece: createPieceFromPrototype(this.color, true, cell.coordinates, this) };
+      } else {
+        return cell;
+      }
+    });
+    return {cells: newCells, success: true};
+  };
 
   //This next function only considers cells involved in a potential castling.
   orderedInBetweenCells(cells: Readonly<Cell[]>, kingCell: Readonly<Cell>, rookCell: Readonly<Cell>): Cell[] {
@@ -98,9 +165,9 @@ export class King extends ChessPiece {
 
   validMoves(context: Readonly<MoveContext>): Cell[] {
 
-    const { col, piece, row } = getCellInfo(context.startCell);
+    const { col, row } = getCellInfo(context.startCell!);
 
-    if (!piece || !piece.type.endsWith('K') || !context.turn || !context.gameStatus) return [];
+    if (!(context.startCell!.piece && context.startCell!.piece instanceof King) || !context.turn || !context.gameStatus) return [];
 
     // Here, we list every possible direction for the king. We'll then apply them to the start position to check where it lands.
     const kingDirections = [
@@ -126,7 +193,7 @@ export class King extends ChessPiece {
 
     return [
       ...possibleMoves,
-      ...this.castlingMoves(context.cells, context.lastMove, context.turn, context.gameStatus)
+      ...this.castlingMoves(context)
     ];
   }
 }
