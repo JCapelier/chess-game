@@ -1,4 +1,4 @@
-import type { CellProps as CellProperties } from '../type';
+import type { CellProps } from '../type';
 
 import blackBishop from '../assets/pieces/black_bishop.png';
 import blackKing from '../assets/pieces/black_king.png';
@@ -12,11 +12,11 @@ import whiteKnight from '../assets/pieces/white_knight.png';
 import whitePawn from '../assets/pieces/white_pawn.png';
 import whiteQueen from '../assets/pieces/white_queen.png';
 import whiteRook from '../assets/pieces/white_rook.png';
-import './Cell.css';
-import { getPieceTypeName, pieceColor } from '../utils/piece-utils';
+import './cell.css';
+import { capitalize } from '../utils/utils';
 
 
-export default function Cell(properties: Readonly<CellProperties>) {
+export default function Cell(props: Readonly<CellProps>) {
   //Mapping object to render the proper piece
   const pieceImages: { [key: string]: string } = {
     bB: blackBishop,
@@ -33,52 +33,96 @@ export default function Cell(properties: Readonly<CellProperties>) {
     wR: whiteRook
   };
 
+  //This was done with the help of different AI.
+  /* eslint-disable functional/no-conditional-statements, functional/immutable-data */
   return(
     <div
     className={`cell
       h-full w-auto max-w-full object-contain
       flex items-center justify-center
       hover:bg-purple-500/50
-      ${colorClass(properties.isSelected, properties.isPossibleDestination, properties.isAttacker, properties.isCheck, properties.isCastling)}`}
-      onClick={properties.onCellClick}
-      onDragOver={properties.onDragOver}
-      onDrop={properties.onDrop}
+      ${colorClass(props.isSelected, props.isPossibleDestination, props.isAttacker, props.isCheck, props.isCastling)}`}
+      onClick={props.onCellClick}
+      onDragOver={props.onDragOver}
+      onDrop={props.onDrop}
       >
-      {properties.piece && ( //The code in parenthesis runs only if props.piece
+      {props.piece && ( //The code in parenthesis runs only if props.piece
         <img
-        alt={`${pieceColor(properties.piece)} ${getPieceTypeName(properties.piece)}`}
+        alt={`${capitalize(props.piece.color)} ${props.piece.type}`}
         className="w-[80%] h-[80%] object-contain max-w-full max-h-full"
         draggable
         onDragStart={event => {
-          // Clone the actual image node for a pixel-perfect drag ghost. Only way for the ghost to adapt its size.
-          const target = event.target as HTMLImageElement;
-          if (properties.piece && target) {
-            const clone = target.cloneNode(true) as HTMLImageElement;
-            const style = globalThis.getComputedStyle(target);
-            // The immutability is important for data structures, but it shouldn't forbid any DOM manipulation.
-            /* eslint-disable functional/immutable-data */
-            clone.style.width = style.width;
-            clone.style.height = style.height;
-            clone.style.objectFit = style.objectFit;
-            clone.style.maxWidth = style.maxWidth;
-            clone.style.maxHeight = style.maxHeight;
-            clone.style.position = 'absolute';
-            clone.style.top = '-9999px';
-            /* eslint-enable functional/immutable-data */
-            document.body.append(clone);
-            event.dataTransfer.setDragImage(clone, clone.width / 2, clone.height / 2);
-            setTimeout(() => clone.remove(), 0);
-            return;
+          // Trigger optional external handler if provided
+          props.onDragStart?.();
+
+          const targetImage = event.target as HTMLImageElement;
+          if (!props.piece || !targetImage) return;
+
+          // Get the displayed dimensions of the original image in pixels
+          const boundingBox = targetImage.getBoundingClientRect();
+          const displayWidth = Math.round(boundingBox.width);
+          const displayHeight = Math.round(boundingBox.height);
+
+          // Get the natural dimensions of the image (the real bitmap size)
+          const naturalWidth = targetImage.naturalWidth || displayWidth;
+          const naturalHeight = targetImage.naturalHeight || displayHeight;
+
+          // Calculate how much we need to scale the image to fit the display box
+          // "contain" behavior: scale so the whole image fits without distortion
+          const scaleFactor = Math.min(displayWidth / naturalWidth, displayHeight / naturalHeight);
+
+          // Determine the scaled width and height while keeping aspect ratio
+          const scaledWidth = Math.max(1, Math.round(naturalWidth * scaleFactor));
+          const scaledHeight = Math.max(1, Math.round(naturalHeight * scaleFactor));
+
+          // Center the image inside the target box
+          const horizontalOffset = Math.floor((displayWidth - scaledWidth) / 2);
+          const verticalOffset = Math.floor((displayHeight - scaledHeight) / 2);
+
+          // Create a canvas to draw the drag image onto
+          const dragCanvas = document.createElement('canvas');
+
+          // The canvas bitmap must match the physical pixel density of the screen
+          const devicePixelRatioValue = window.devicePixelRatio || 1;
+          dragCanvas.width = Math.max(1, Math.floor(displayWidth * devicePixelRatioValue));
+          dragCanvas.height = Math.max(1, Math.floor(displayHeight * devicePixelRatioValue));
+
+          // Also set the CSS dimensions so the browser interprets it at display scale
+          dragCanvas.style.width = `${displayWidth}px`;
+          dragCanvas.style.height = `${displayHeight}px`;
+
+          // Get a 2D rendering context to draw on the canvas
+          const drawingContext = dragCanvas.getContext('2d');
+          if (drawingContext) {
+            // Scale the drawing operations to device pixel ratio for sharpness
+            drawingContext.scale(devicePixelRatioValue, devicePixelRatioValue);
+
+            // Clear the canvas area
+            drawingContext.clearRect(0, 0, displayWidth, displayHeight);
+
+            // Draw the image centered and scaled with preserved aspect ratio
+            drawingContext.drawImage(
+              targetImage,               // source image
+              0, 0,                      // source x, y
+              naturalWidth, naturalHeight, // source width, height
+              horizontalOffset, verticalOffset, // destination x, y
+              scaledWidth, scaledHeight          // destination width, height
+            );
           }
 
-          // Call optional handler if provided
-          properties.onDragStart?.();
+          // Use the canvas as the drag image, centered on the cursor
+          event.dataTransfer.setDragImage(
+            dragCanvas,
+            displayWidth / 2,
+            displayHeight / 2
+          );
         }}
-        src={pieceImages[properties.piece.type]}
+        src={pieceImages[props.piece.symbol]}
         />
       )}
     </div>
   );
+  /* eslint-enable functional/no-conditional-statements, functional/immutable-data */
 }
 
 function colorClass(isSelected: boolean, isPossibleDestination: boolean, isAttacker: boolean, isCheck: boolean, isCastling: boolean): string {

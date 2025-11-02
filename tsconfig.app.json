@@ -20,13 +20,12 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
-  },
-  "include": [
-    "src",
-    "vite.config.ts",
-    "daisyui.d.ts"
-  ]
+    },
+    "include": [
+      "src",
+      "vite.config.ts",
+      "daisyui.d.ts"
+    ]
 }

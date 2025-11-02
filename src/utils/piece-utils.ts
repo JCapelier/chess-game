@@ -1,10 +1,12 @@
-import type { Cell, CellColor, GameStatus, Piece } from '../type';
+import type { Cell, CellColor, GameStatus, MoveContext, Piece } from '../type';
+
+import { King } from '../models/king';
 
 
 export function checkedPlayerKing(cell: Readonly<Cell>, gameStatus: GameStatus, turn: CellColor): boolean {
   // We only use this function in case of check or checkmate, to select the king to highlight
   if (gameStatus === 'playing' || gameStatus === 'stalemate') return false;
-  return isPlayerKing(cell, turn);
+  if (cell.piece) return cell.piece.isPlayerKing(turn) === true ? cell.piece.isPlayerKing(turn) : false;
 }
 
 export function getPieceTypeName(piece: Readonly<Piece>): string {
@@ -27,30 +29,21 @@ export function getPieceTypeName(piece: Readonly<Piece>): string {
 }
 
 export function isBlack(piece: Readonly<Piece | undefined>): boolean {
-  return piece !== undefined && piece.type.startsWith('b');
+  return piece !== undefined && piece.color === 'black';
 }
 
 export function isEnemyPiece(playingPiece: Readonly<Piece>, otherPiece: Readonly<Piece>): boolean {
   return ((isBlack(playingPiece) && isWhite(otherPiece)) || (isWhite(playingPiece) && isBlack(otherPiece)));
 }
 
-export function isPlayerKing(cell: Readonly<Cell>, turn: CellColor): boolean {
-  if (turn === 'white') {
-    return cell.piece?.type === "wK";
-  } else if (turn === 'black') {
-    return cell.piece?.type === 'bK';
-  } else {
-    return false;
-  }
-}
 
-export function isPlayerPiece(selectedCell: Readonly<Cell>, turn: CellColor): boolean {
+export function isPlayerPiece(context: Readonly<MoveContext>, selectedCell: Readonly<Cell>): boolean {
   if (!selectedCell.piece) return false;
-  return selectedCell.piece.type.at(0) === turn.at(0);
+  return selectedCell.piece.color === context.turn;
 }
 
 export function isWhite(piece: Readonly<Piece | undefined>): boolean {
-  return piece !== undefined && piece.type.startsWith('w');
+  return piece !== undefined && piece.color === 'white';
 }
 
 export function pieceColor(piece: Readonly<Piece>): CellColor {
@@ -58,5 +51,5 @@ export function pieceColor(piece: Readonly<Piece>): CellColor {
 }
 
 export function playerKing(cells: Readonly<Cell[]>, turn: CellColor) {
-  return turn === 'white' ? cells.find(cell => cell.piece?.type === 'wK') : cells.find(cell => cell.piece?.type === 'bK');
+  return cells.find(cell => cell.piece instanceof King && cell.piece.color === turn);
 }

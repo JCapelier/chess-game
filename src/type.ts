@@ -1,11 +1,18 @@
+import { Bishop } from './models/bishop';
+import { King } from './models/king';
+import { Knight } from './models/knight';
+import { Pawn } from './models/pawn';
+import { Queen } from './models/queen';
+import { Rook } from './models/rook';
+
+
 export type Cell = {
   cellColor: CellColor;
   coordinates: Coordinates;
-  piece: Piece | undefined;
+  piece?: Piece;
 };
 
 export type CellColor = 'black' | 'white'
-
 
 export type CellProps = Cell & {
   isAttacker: boolean;
@@ -30,11 +37,17 @@ export type GameStatus = 'check' | 'checkmate' | 'playing' | 'stalemate'
 export type Move = {
   //The string will be chess notations
   from: Cell;
-  pieceType: Piece['type'];
+  piece: Piece;
   to: Cell;
 }
 
-export type Piece = {
-  hasMoved: boolean
-  type: "bB" | "bK" | "bN" | "bP" | "bQ" | "bR" | "wB" | "wK" | "wN" | "wP" | "wQ" | "wR";
-};
+export interface MoveContext {
+  cells: Readonly<Cell[]>;
+  gameStatus: GameStatus;
+  lastMove?: Readonly<Move>;
+  startCell?: Readonly<Cell>;
+  turn: CellColor;
+  // Add more properties as needed for special moves
+}
+
+export type Piece = Bishop | King | Knight | Pawn | Queen | Rook;

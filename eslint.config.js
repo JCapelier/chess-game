@@ -73,4 +73,18 @@ export default defineConfig([
       ],
     },
   },
+  {
+    files: ['src/models/**/*.ts'],
+    rules: {
+      'functional/no-class': 'off',
+      'functional/no-classes': 'off',
+      'functional/no-this-expression': 'off',
+      'functional/no-mixed-types': 'off',
+      'functional/no-return-void': 'off',
+      'functional/no-conditional-statements': 'off',
+      'functional/immutable-data': 'off',
+      'functional/no-class-inheritance': 'off',
+      'semi': ['error', 'always'],
+    },
+  },
 ])
