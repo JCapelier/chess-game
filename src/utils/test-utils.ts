@@ -3,9 +3,8 @@
 // Set up a classic stalemate test board
 // Just move wQ from g7 to g6, and black will be stalemate
 
-import { King } from '../models/king';
-import { Queen } from '../models/queen';
-import { type Cell, CellColor } from '../type';
+import { createPiece } from '../factories/piece-factory';
+import { type Cell, CellColor, PieceType } from '../type';
 
 
 export function setStalemateTestBoard(): Cell[] {
@@ -23,15 +22,15 @@ export function setStalemateTestBoard(): Cell[] {
 
   // Place Black king on h8 (row 8, col 7)
   const blackKingCell = cells.find(cell => cell.coordinates.row === 8 && cell.coordinates.col === 7)!;
-  blackKingCell.piece = new King(CellColor.Black, blackKingCell.coordinates, true);
+  blackKingCell.piece = createPiece(CellColor.Black, true, blackKingCell.coordinates, PieceType.King);
 
   // Place White king on f6 (row 6, col 5)
   const whiteKingCell = cells.find(cell => cell.coordinates.row === 6 && cell.coordinates.col === 5)!;
-  whiteKingCell.piece = new King(CellColor.White, whiteKingCell.coordinates, true);
+  whiteKingCell.piece = createPiece(CellColor.White, true, whiteKingCell.coordinates, PieceType.King);;
 
   // Place White queen on g7 (row 7, col 6)
   const whiteQueenCell = cells.find(cell => cell.coordinates.row === 7 && cell.coordinates.col === 6)!;
-  whiteQueenCell.piece = new Queen(CellColor.White, whiteQueenCell.coordinates, true);
+  whiteQueenCell.piece = createPiece(CellColor.White, true, whiteQueenCell.coordinates, PieceType.Queen);;
 
   return cells;
 }

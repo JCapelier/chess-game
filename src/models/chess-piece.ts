@@ -1,6 +1,6 @@
+import { createPieceFromPrototype } from "../factories/piece-factory";
 import { getPossibleMoves } from "../moves/possible-moves";
 import { type Cell, CellColor, type Coordinates, type MoveContext, type PieceSymbol } from "../type";
-import { createPieceFromPrototype } from '../utils/piece-factory';
 import { toChessNotation } from "../utils/utils";
 import { King } from "./king";
 

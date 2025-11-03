@@ -1,7 +1,7 @@
+import { createPieceFromPrototype } from '../factories/piece-factory';
 import { type Cell, type CellColor, type Coordinates, GameStatus, type MoveContext } from '../type';
 import { getCellInfo } from '../utils/board-utils';
 import { checkForCheck } from '../utils/game-status-utils';
-import { createPieceFromPrototype } from '../utils/piece-factory';
 import { isPlayerPiece, playerKing } from '../utils/piece-utils';
 import { toChessNotation } from '../utils/utils';
 import { ChessPiece } from "./chess-piece";
