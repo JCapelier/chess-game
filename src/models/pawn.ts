@@ -1,9 +1,8 @@
+import { createPieceFromPrototype, createPromotedPawn } from '../factories/piece-factory';
 import { type Cell, CellColor, type Coordinates, type Move, type MoveContext } from '../type';
 import { getCellInfo } from '../utils/board-utils';
-import { createPieceFromPrototype } from '../utils/piece-factory';
 import { toChessNotation } from '../utils/utils';
 import { ChessPiece } from './chess-piece';
-import { Valkyrie } from './valkyrie';
 
 export class Pawn extends ChessPiece {
   constructor(color: CellColor, location: Readonly<Coordinates>, hasMoved: boolean = false) {
@@ -14,12 +13,8 @@ export class Pawn extends ChessPiece {
     return cells.map( cell => {
       return cell.piece instanceof Pawn &&
       ((cell.piece.color === CellColor.White && cell.coordinates.row === 0) ||
-      (cell.piece.color === CellColor.Black && cell.coordinates.row === 7)) ? {...cell, piece: Pawn.promotePawnToValkyrie(cell.piece)} : cell;
+      (cell.piece.color === CellColor.Black && cell.coordinates.row === 7)) ? {...cell, piece: createPromotedPawn(cell.piece)} : cell;
     });
-  }
-
-  static promotePawnToValkyrie(pawn: Readonly<Pawn>) {
-    return new Valkyrie(pawn.color, pawn.location, true);
   }
 
   captureEnPassant(cell: Readonly<Cell>, startCell: Readonly<Cell>, destinationCell: Readonly<Cell>) {

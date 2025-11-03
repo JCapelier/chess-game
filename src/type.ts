@@ -19,13 +19,25 @@ export enum PieceSymbol {
   BlackPawn = "bP",
   BlackQueen = "bQ",
   BlackRook = "bR",
+  BlackValkyrie = "bV",
   WhiteBishop = "wB",
   WhiteKing = "wK",
   WhiteKnight = "wN",
   WhitePawn = "wP",
   WhiteQueen = "wQ",
   WhiteRook = "wR",
+  WhiteValkyrie = "wV",
 };
+
+export enum PieceType {
+  Bishop = 'Bishop',
+  King = 'King',
+  Knight = 'Knight',
+  Pawn = 'Pawn',
+  Queen = 'Queen',
+  Rook = 'Rook',
+  Valkyrie = 'Valkyrie'
+}
 
 export interface Cell {
   cellColor: CellColor;
