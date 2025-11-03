@@ -3,7 +3,7 @@ import { getCellInfo } from '../utils/board-utils';
 import { createPieceFromPrototype } from '../utils/piece-factory';
 import { toChessNotation } from '../utils/utils';
 import { ChessPiece } from './chess-piece';
-import { Queen } from './queen';
+import { Valkyrie } from './valkyrie';
 
 export class Pawn extends ChessPiece {
   constructor(color: CellColor, location: Readonly<Coordinates>, hasMoved: boolean = false) {
@@ -14,16 +14,13 @@ export class Pawn extends ChessPiece {
     return cells.map( cell => {
       return cell.piece instanceof Pawn &&
       ((cell.piece.color === CellColor.White && cell.coordinates.row === 0) ||
-      (cell.piece.color === CellColor.Black && cell.coordinates.row === 7)) ? {...cell, piece: Pawn.promotePawnToQueen(cell.piece)} : cell;
+      (cell.piece.color === CellColor.Black && cell.coordinates.row === 7)) ? {...cell, piece: Pawn.promotePawnToValkyrie(cell.piece)} : cell;
     });
   }
 
-  static promotePawnToQueen(pawn: Readonly<Pawn>) {
-    return new Queen(pawn.color, pawn.location, true);
+  static promotePawnToValkyrie(pawn: Readonly<Pawn>) {
+    return new Valkyrie(pawn.color, pawn.location, true);
   }
-
-  //For now, promotion automatically promotes the pawn to queen.
-  //TODO underpromotion
 
   captureEnPassant(cell: Readonly<Cell>, startCell: Readonly<Cell>, destinationCell: Readonly<Cell>) {
     const capturedRow = startCell.coordinates.row;

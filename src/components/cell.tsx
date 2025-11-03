@@ -6,12 +6,14 @@ import blackKnight from '../assets/pieces/black_knight.png';
 import blackPawn from '../assets/pieces/black_pawn.png';
 import blackQueen from '../assets/pieces/black_queen.png';
 import blackRook from '../assets/pieces/black_rook.png';
+import blackValkyrie from '../assets/pieces/black_valkyrie.png';
 import whiteBishop from '../assets/pieces/white_bishop.png';
 import whiteKing from '../assets/pieces/white_king.png';
 import whiteKnight from '../assets/pieces/white_knight.png';
 import whitePawn from '../assets/pieces/white_pawn.png';
 import whiteQueen from '../assets/pieces/white_queen.png';
 import whiteRook from '../assets/pieces/white_rook.png';
+import whiteValkyrie from '../assets/pieces/white_valkyrie.png';
 import './cell.css';
 import { capitalize } from '../utils/utils';
 
@@ -25,12 +27,14 @@ export default function Cell(props: Readonly<CellProps>) {
     bP: blackPawn,
     bQ: blackQueen,
     bR: blackRook,
+    bV: blackValkyrie,
     wB: whiteBishop,
     wK: whiteKing,
     wN: whiteKnight,
     wP: whitePawn,
     wQ: whiteQueen,
-    wR: whiteRook
+    wR: whiteRook,
+    wV: whiteValkyrie,
   };
 
   //This was done with the help of different AI.
