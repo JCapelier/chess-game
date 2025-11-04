@@ -32,8 +32,12 @@ export abstract class ChessPiece {
       [PieceType.Rook]: "R",
       [PieceType.Valkyrie]: "V",
     };
-    const letter = typeToSymbol[this.type];
-    return (this.color[0] + letter) as PieceSymbol;
+
+    const colorToSymbol: Record<CellColor, string> = {
+      [CellColor.Black]: 'b',
+      [CellColor.White]: 'w'
+    };
+    return (colorToSymbol[this.color] + typeToSymbol[this.type]) as PieceSymbol;
   }
 
   isEnemyPiece(piece: Readonly<ChessPiece>): boolean {
