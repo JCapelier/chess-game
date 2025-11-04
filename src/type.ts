@@ -1,3 +1,4 @@
+import type { PieceFactoryPort } from './factories/piece-factory-port';
 import type { ChessPiece } from './models/chess-piece';
 
 export enum CellColor {
@@ -11,6 +12,7 @@ export enum GameStatus {
   Playing = 'playing',
   Stalemate = 'stalemate',
 };
+
 
 export enum PieceSymbol {
   BlackBishop = "bB",
@@ -80,6 +82,14 @@ export interface MoveContext {
   cells: Readonly<Cell[]>;
   gameStatus: GameStatus;
   lastMove?: Readonly<Move>;
+  pieceFactory: PieceFactoryPort;
   startCell?: Readonly<Cell>;
   turn: CellColor;
+};
+
+export interface PieceInstance {
+  color: CellColor;
+  hasMoved: boolean;
+  location: Readonly<Coordinates>;
+  symbol: PieceSymbol;
 };

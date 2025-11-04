@@ -1,20 +1,20 @@
-import { createPieceFromPrototype } from "../factories/piece-factory";
 import { getPossibleMoves } from "../moves/possible-moves";
-import { type Cell, CellColor, type Coordinates, type MoveContext, type PieceSymbol } from "../type";
+import { type Cell, CellColor, type Coordinates, type MoveContext, PieceSymbol, PieceType } from "../type";
 import { toChessNotation } from "../utils/utils";
-import { King } from "./king";
 
-export class ChessPiece {
+export abstract class ChessPiece {
   color: CellColor;
   hasMoved: boolean;
   location: Coordinates;
   symbol: PieceSymbol;
+  type: PieceType;
 
-  constructor(color: CellColor, location: Readonly<Coordinates>, hasMoved: boolean = false) {;
+  constructor(color: CellColor, location: Readonly<Coordinates>, hasMoved: boolean = false, type: PieceType) {;
     this.color = color;
     this.symbol = this.getPieceSymbol();
     this.hasMoved = hasMoved;
     this.location = location;
+    this.type = type;
   }
 
   canMove(context: Readonly<MoveContext>, destinationCell: Readonly<Cell>, simulation: boolean = false): boolean {
@@ -28,16 +28,16 @@ export class ChessPiece {
     return (this.color[0] + letter) as PieceSymbol;
   }
 
-  isBlack() {
-    return this.color === CellColor.Black;
-  }
-
-  isEnemyPiece(piece: Readonly<ChessPiece>) {
+  isEnemyPiece(piece: Readonly<ChessPiece>): boolean {
     return this.color !== piece.color;
   }
 
   isPlayerKing(turn: CellColor): boolean {
-    return (this.color === turn && this instanceof King);
+    return (this.color === turn && (this.symbol === PieceSymbol.BlackKing || this.symbol === PieceSymbol.WhiteKing));
+  }
+
+  isPlayerPiece(turn: CellColor): boolean {
+    return this.color === turn;
   }
 
   movePiece(context: Readonly<MoveContext>, destinationCell: Readonly<Cell>, simulation: boolean = false): {cells: Cell[], success: boolean} {
@@ -47,7 +47,7 @@ export class ChessPiece {
       if (toChessNotation(cell.coordinates) === toChessNotation(this.location)) {
         return { ...cell, piece: undefined };
       } else if (toChessNotation(cell.coordinates) === toChessNotation(destinationCell.coordinates)) {
-        return { ...cell, piece: createPieceFromPrototype(this.color, true, cell.coordinates, this) };
+        return { ...cell, piece: context.pieceFactory.createPiece(this.color, true, cell.coordinates, this.type) };
       } else {
         return cell;
       }

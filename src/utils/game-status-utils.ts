@@ -1,12 +1,11 @@
-import { King } from '../models/king';
+
 import { getPossibleMoves } from '../moves/possible-moves';
-import { type Cell, CellColor, type MoveContext } from '../type';
-import { isPlayerPiece } from './piece-utils';
+import { type Cell, CellColor, type MoveContext, PieceType } from '../type';
 import { toChessNotation } from './utils';
 
 export function checkForCheck(context: Readonly<MoveContext>):  {attackers: Cell[]; check: boolean,} {
   // Find the king of the current turn's color
-  const kingCell = context.cells.find(cell => cell.piece && cell.piece instanceof King && cell.piece.color === context.turn);
+  const kingCell = context.cells.find(cell => cell.piece && cell.piece.type === PieceType.King && cell.piece.color === context.turn);
   if (!kingCell) return { attackers: [], check: false };
 
   // Find all enemy pieces
@@ -39,7 +38,7 @@ export function isStaleMate(context: Readonly<MoveContext>): boolean {
 
 function hasLegalMove(context: Readonly<MoveContext>): boolean {
   return context.cells
-    .filter(cell => isPlayerPiece(context, cell))
+    .filter(cell => cell.piece && cell.piece.isPlayerPiece(context.turn))
     .some(cell => {
       const moveContext = {...context, startCell: cell};
       // Use normal move validation (simulation=false) to properly filter moves that leave king in check

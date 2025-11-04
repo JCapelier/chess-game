@@ -1,7 +1,6 @@
 import type { Cell, MoveContext } from '../type';
 
-import { getCellInfo } from '../utils/board-utils';
-import { isEnemyPiece } from '../utils/piece-utils';
+import { getCellInfo } from '../utils/cells-utils';
 
 // Generic function to scan in ordered directions for sliding pieces (rook, bishop, queen)
 export function checkOrderedCells(context: Readonly<MoveContext>, orderedCells: Readonly<Cell[][]>): Cell[] {
@@ -20,7 +19,7 @@ export function checkOrderedCells(context: Readonly<MoveContext>, orderedCells: 
     // and include it too only if it's an enemy
     const occupiedCell = orderedArray[firstOccupiedIndex];
     const includeOccupied =
-      context.startCell!.piece && occupiedCell.piece && isEnemyPiece(context.startCell!.piece, occupiedCell.piece);
+      context.startCell && context.startCell.piece && occupiedCell.piece && context.startCell.piece.isEnemyPiece(occupiedCell.piece);
 
     return orderedArray.slice(0, includeOccupied ? firstOccupiedIndex + 1 : firstOccupiedIndex);
   });

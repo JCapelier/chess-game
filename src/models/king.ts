@@ -1,17 +1,17 @@
-import { createPieceFromPrototype } from '../factories/piece-factory';
-import { type Cell, type CellColor, type Coordinates, GameStatus, type MoveContext } from '../type';
-import { getCellInfo } from '../utils/board-utils';
+import type { PieceFactoryPort } from '../factories/piece-factory-port';
+
+import { type Cell, type CellColor, type Coordinates, GameStatus, type MoveContext, PieceType } from '../type';
+import { getCellInfo } from '../utils/cells-utils';
+import { playerKing } from '../utils/find-piece-utils';
 import { checkForCheck } from '../utils/game-status-utils';
-import { isPlayerPiece, playerKing } from '../utils/piece-utils';
 import { toChessNotation } from '../utils/utils';
 import { ChessPiece } from "./chess-piece";
-import { Rook } from './rook';
 
 
 export class King extends ChessPiece {
 
-  constructor(color: CellColor, location: Readonly<Coordinates>, hasMoved: boolean = false) {
-    super(color, location, hasMoved);
+  constructor(color: CellColor, location: Readonly<Coordinates>, hasMoved: boolean = false, type: PieceType) {
+    super(color, location, hasMoved, type);
   }
 
   areInBetweenCellsEmpty(cells: Readonly<Cell[]>, kingCell: Readonly<Cell>, rookCell: Readonly<Cell>): boolean {
@@ -19,7 +19,7 @@ export class King extends ChessPiece {
     return !inBetweenCells.some(cell => cell.piece);
   }
 
-  castle(cell: Readonly<Cell>, destinationCell: Readonly<Cell>) {
+  castle(cell: Readonly<Cell>, destinationCell: Readonly<Cell>, pieceFactory: PieceFactoryPort) {
     const row = this.location.row;
     const isLeft = destinationCell.coordinates.col === 0;
     const isRight = destinationCell.coordinates.col === 7;
@@ -28,13 +28,13 @@ export class King extends ChessPiece {
       // King goes to col 2, rook to col 3
       // Old king to undefined is taken care of by a previous if statement.
       if (cell.coordinates.col === 0 && cell.coordinates.row === row) return { ...cell, piece: undefined }; // old rook
-      if (cell.coordinates.col === 2 && cell.coordinates.row === row) return { ...cell, piece: createPieceFromPrototype(this.color, true, cell.coordinates, this) };
-      if (cell.coordinates.col === 3 && cell.coordinates.row === row) return { ...cell, piece: createPieceFromPrototype(destinationCell.piece!.color, true, cell.coordinates, destinationCell.piece!) };
+      if (cell.coordinates.col === 2 && cell.coordinates.row === row) return { ...cell, piece: pieceFactory.createPiece(this.color, true, cell.coordinates, this.type) };
+      if (cell.coordinates.col === 3 && cell.coordinates.row === row) return { ...cell, piece: pieceFactory.createPiece(destinationCell.piece!.color, true, cell.coordinates, destinationCell!.piece!.type) };
     } else if (isRight) {
       // King goes to col 6, rook to col 5
       if (cell.coordinates.col === 7 && cell.coordinates.row === row) return { ...cell, piece: undefined }; // old rook
-      if (cell.coordinates.col === 6 && cell.coordinates.row === row) return { ...cell, piece: createPieceFromPrototype(this.color, true, cell.coordinates, this) };
-      if (cell.coordinates.col === 5 && cell.coordinates.row === row) return { ...cell, piece: createPieceFromPrototype(destinationCell.piece!.color, true, cell.coordinates, destinationCell.piece!) };
+      if (cell.coordinates.col === 6 && cell.coordinates.row === row) return { ...cell, piece: pieceFactory.createPiece(this.color, true, cell.coordinates, this.type) };
+      if (cell.coordinates.col === 5 && cell.coordinates.row === row) return { ...cell, piece: pieceFactory.createPiece(destinationCell.piece!.color, true, cell.coordinates, destinationCell!.piece!.type) };
     }
     return cell;
   }
@@ -42,7 +42,7 @@ export class King extends ChessPiece {
 
   castlingMoves(context: Readonly<MoveContext>): Cell[] {
     const kingCell = playerKing(context.cells, context.turn);
-    const rookCells: Cell[] = context.cells.filter(cell => cell.piece instanceof Rook && isPlayerPiece(context, cell));
+    const rookCells: Cell[] = context.cells.filter(cell => cell.piece && cell.piece.type === PieceType.Rook && cell.piece.isPlayerPiece(context.turn));
 
     if(!kingCell ||
       kingCell.piece!.hasMoved === true ||
@@ -64,7 +64,7 @@ export class King extends ChessPiece {
           if (toChessNotation(boardCell.coordinates) === toChessNotation(kingCell.coordinates)) {
             return { ...boardCell, piece: undefined };
           } else if (toChessNotation(boardCell.coordinates) === toChessNotation(cell.coordinates)) {
-            return { ...boardCell, piece: createPieceFromPrototype(this.color, true, boardCell.coordinates, this) };
+            return { ...boardCell, piece: context.pieceFactory.createPiece(this.color, true, boardCell.coordinates, this.type) };
           } else {
             return boardCell;
           }
@@ -84,7 +84,7 @@ export class King extends ChessPiece {
           if (toChessNotation(boardCell.coordinates) === toChessNotation(kingCell.coordinates)) {
             return { ...boardCell, piece: undefined };
           } else if (toChessNotation(boardCell.coordinates) === toChessNotation(cell.coordinates)) {
-            return { ...boardCell, piece: createPieceFromPrototype(this.color, true, boardCell.coordinates, this) };
+            return { ...boardCell, piece: context.pieceFactory.createPiece(this.color, true, boardCell.coordinates, this.type) };
           } else {
             return boardCell;
           }
@@ -112,10 +112,11 @@ export class King extends ChessPiece {
     // If the players selects its king and then its rook, it's an attempted castling move
     // This is just a quick check, because it only triggers when we know what are the valid moves.
     // The actual logic of the move, which properly places the king and the rook, are in movePiece
-    return (
+    return Boolean(
       this.isPlayerKing(context.turn!) &&
-      destinationCell.piece instanceof Rook &&
-      isPlayerPiece(context, destinationCell)
+      destinationCell.piece &&
+      destinationCell.piece.type === PieceType.Rook &&
+      destinationCell.piece.isPlayerPiece(context.turn)
     );
   }
   movePiece(context: Readonly<MoveContext>, destinationCell: Readonly<Cell>, simulation: boolean = false): {cells: Cell[], success: boolean} {
@@ -124,16 +125,16 @@ export class King extends ChessPiece {
       return {cells: [...context.cells], success: false};
     }
 
-    if (!simulation && destinationCell.piece instanceof King) return { cells: [...context.cells], success: false };
+    if (!simulation && destinationCell.piece && destinationCell.piece.type === PieceType.King) return { cells: [...context.cells], success: false };
 
     const newCells: Cell[] = context.cells.map(cell => {
       if (toChessNotation(cell.coordinates) === toChessNotation(this.location)) {
         return { ...cell, piece: undefined };
       } else if (!simulation && this.isCastlingMove(context, destinationCell)) {
         // Only handle castling logic when not in simulation
-        return this.castle(cell, destinationCell) ?? cell;
+        return this.castle(cell, destinationCell, context.pieceFactory) ?? cell;
       } else if (toChessNotation(cell.coordinates) === toChessNotation(destinationCell.coordinates)) {
-        return { ...cell, piece: createPieceFromPrototype(this.color, true, cell.coordinates, this) };
+        return { ...cell, piece: context.pieceFactory.createPiece(this.color, true, cell.coordinates, this.type) };
       } else {
         return cell;
       }
@@ -166,7 +167,7 @@ export class King extends ChessPiece {
 
     const { col, row } = getCellInfo(context.startCell!);
 
-    if (!(context.startCell!.piece && context.startCell!.piece instanceof King) || !context.turn || !context.gameStatus) return [];
+    if (!(context.startCell!.piece && context.startCell!.piece.type === PieceType.King) || !context.turn || !context.gameStatus) return [];
 
     // Here, we list every possible direction for the king. We'll then apply them to the start position to check where it lands.
     const kingDirections = [

@@ -1,19 +1,22 @@
-import { createPieceFromPrototype, createPromotedPawn } from '../factories/piece-factory';
-import { type Cell, CellColor, type Coordinates, type Move, type MoveContext } from '../type';
-import { getCellInfo } from '../utils/board-utils';
+import type { PieceFactoryPort } from '../factories/piece-factory-port';
+
+import { type Cell, CellColor, type Coordinates, type Move, type MoveContext, PieceType } from '../type';
+import { getCellInfo } from '../utils/cells-utils';
+import { isWhite } from '../utils/color-utils';
 import { toChessNotation } from '../utils/utils';
 import { ChessPiece } from './chess-piece';
 
 export class Pawn extends ChessPiece {
-  constructor(color: CellColor, location: Readonly<Coordinates>, hasMoved: boolean = false) {
-    super(color, location, hasMoved);
+  constructor(color: CellColor, location: Readonly<Coordinates>, hasMoved: boolean = false, type: PieceType) {
+    super(color, location, hasMoved, type);
   }
 
-  static pawnPromotion(cells: Readonly<Cell[]>): Cell[]{
+  static pawnPromotion(cells: Readonly<Cell[]>, pieceFactory: PieceFactoryPort): Cell[]{
     return cells.map( cell => {
-      return cell.piece instanceof Pawn &&
-      ((cell.piece.color === CellColor.White && cell.coordinates.row === 0) ||
-      (cell.piece.color === CellColor.Black && cell.coordinates.row === 7)) ? {...cell, piece: createPromotedPawn(cell.piece)} : cell;
+      return cell.piece &&
+      cell.piece.type === PieceType.Pawn &&
+      ((cell.piece!.color === CellColor.White && cell.coordinates.row === 0) ||
+      (cell.piece!.color === CellColor.Black && cell.coordinates.row === 7)) ? {...cell, piece: pieceFactory.createPromotedPawn(cell.piece!.color, cell.piece!.location)} : cell;
     });
   }
 
@@ -27,7 +30,7 @@ export class Pawn extends ChessPiece {
     if (!context.lastMove || !this.hasPawnMovedTwoSquares(context.lastMove)) return [];
 
     const { col, row } = context.startCell!.coordinates;
-    const pawnDirection = this.isBlack() ? 1 : -1;
+    const pawnDirection = isWhite(this) ? -1 : 1;
     const enPassantRow = row + pawnDirection;
 
     // The pawn that just moved must be adjacent (left or right)
@@ -56,7 +59,7 @@ export class Pawn extends ChessPiece {
 
   //We're just checking the last move, for 'en passant', we don't consider the status of every pawn.
   hasPawnMovedTwoSquares(lastMove?: Readonly<Move | undefined>): boolean {
-    if (!lastMove || !(lastMove.piece instanceof Pawn)) return false;
+    if (!lastMove || !(lastMove.piece.type === PieceType.Pawn)) return false;
 
     const startRow = lastMove.from.coordinates.row;
     const endRow = lastMove.to.coordinates.row;
@@ -82,7 +85,7 @@ export class Pawn extends ChessPiece {
       if (toChessNotation(cell.coordinates) === toChessNotation(this.location)) {
         return {...cell, piece: undefined};
       } else if (toChessNotation(cell.coordinates) === toChessNotation(destinationCell.coordinates)) {
-        return {...cell, piece: createPieceFromPrototype(this.color, true, cell.coordinates, this) };
+        return {...cell, piece: context.pieceFactory.createPiece(this.color, true, cell.coordinates, this.type) };
       } else if (this.isEnPassant(context, destinationCell)) {
         const captured = this.captureEnPassant(cell, context.startCell!, destinationCell);
         return captured ?? cell;
@@ -90,17 +93,17 @@ export class Pawn extends ChessPiece {
         return cell;
       }
     });
-      return {cells: Pawn.pawnPromotion(newCells), success: true};
+      return {cells: Pawn.pawnPromotion(newCells, context.pieceFactory), success: true};
   };
 
 
   validMoves(context: Readonly<MoveContext>): Cell[] {
     const { col, piece, row } = getCellInfo(context.startCell!);
 
-    if (!(context.startCell!.piece && context.startCell!.piece instanceof Pawn)) return [];
+    if (!(context.startCell!.piece && context.startCell!.piece.type === PieceType.Pawn)) return [];
 
     //White moving up, black moving down
-    const direction = this.isBlack() ? 1 : -1;
+    const direction = isWhite(this) ? -1 : 1;
 
     //Checking cells where pawn can move
     const oneCellAhead: Cell | undefined = context.cells.find(cell =>
