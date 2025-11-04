@@ -91,7 +91,7 @@ export function jumpingMoves(context: Readonly<MoveContext>) {
     });
 
     const possibleMoves: Cell[] = destinations.filter(destination =>
-      !destination.piece || destination.piece.isEnemyPiece(destination.piece)
+      !destination.piece || context.startCell!.piece!.isEnemyPiece(destination.piece)
     );
 
     return possibleMoves;
