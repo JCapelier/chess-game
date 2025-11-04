@@ -23,8 +23,16 @@ export abstract class ChessPiece {
   }
 
   getPieceSymbol(): PieceSymbol {
-    const exceptions: Record<string, string> = { "Knight": "N" };
-    const letter = exceptions[this.constructor.name] || this.constructor.name[0];
+    const typeToSymbol: Record<PieceType, string> = {
+      [PieceType.Bishop]: "B",
+      [PieceType.King]: "K",
+      [PieceType.Knight]: "N",
+      [PieceType.Pawn]: "P",
+      [PieceType.Queen]: "Q",
+      [PieceType.Rook]: "R",
+      [PieceType.Valkyrie]: "V",
+    };
+    const letter = typeToSymbol[this.type];
     return (this.color[0] + letter) as PieceSymbol;
   }
 
