@@ -1,19 +1,5 @@
 import type { CellProps } from '../type';
 
-import blackBishop from '../assets/pieces/black_bishop.png';
-import blackKing from '../assets/pieces/black_king.png';
-import blackKnight from '../assets/pieces/black_knight.png';
-import blackPawn from '../assets/pieces/black_pawn.png';
-import blackQueen from '../assets/pieces/black_queen.png';
-import blackRook from '../assets/pieces/black_rook.png';
-import blackValkyrie from '../assets/pieces/black_valkyrie.png';
-import whiteBishop from '../assets/pieces/white_bishop.png';
-import whiteKing from '../assets/pieces/white_king.png';
-import whiteKnight from '../assets/pieces/white_knight.png';
-import whitePawn from '../assets/pieces/white_pawn.png';
-import whiteQueen from '../assets/pieces/white_queen.png';
-import whiteRook from '../assets/pieces/white_rook.png';
-import whiteValkyrie from '../assets/pieces/white_valkyrie.png';
 import './cell.css';
 import { capitalize } from '../utils/utils';
 
@@ -21,20 +7,20 @@ import { capitalize } from '../utils/utils';
 export default function Cell(props: Readonly<CellProps>) {
   //Mapping object to render the proper piece
   const pieceImages: { [key: string]: string } = {
-    bB: blackBishop,
-    bK: blackKing,
-    bN: blackKnight,
-    bP: blackPawn,
-    bQ: blackQueen,
-    bR: blackRook,
-    bV: blackValkyrie,
-    wB: whiteBishop,
-    wK: whiteKing,
-    wN: whiteKnight,
-    wP: whitePawn,
-    wQ: whiteQueen,
-    wR: whiteRook,
-    wV: whiteValkyrie,
+    bB: './pieces/black_bishop.png',
+    bK: './pieces/black_king.png',
+    bN: './pieces/black_knight.png',
+    bP: './pieces/black_pawn.png',
+    bQ: './pieces/black_queen.png',
+    bR: './pieces/black_rook.png',
+    bV: './pieces/black_valkyrie.png',
+    wB: './pieces/white_bishop.png',
+    wK: './pieces/white_king.png',
+    wN: './pieces/white_knight.png',
+    wP: './pieces/white_pawn.png',
+    wQ: './pieces/white_queen.png',
+    wR: './pieces/white_rook.png',
+    wV: './pieces/white_valkyrie.png',
   };
 
   //This was done with the help of different AI.
@@ -52,7 +38,7 @@ export default function Cell(props: Readonly<CellProps>) {
       >
       {props.piece && ( //The code in parenthesis runs only if props.piece
         <img
-        alt={`${capitalize(props.piece.color)} ${props.piece.constructor.name}`}
+        alt={`${capitalize(props.piece.color)} ${props.piece.type}`}
         className="w-[80%] h-[80%] object-contain max-w-full max-h-full"
         draggable
         onDragStart={event => {
