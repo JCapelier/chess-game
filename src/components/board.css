@@ -1,5 +1,5 @@
 #board {
-  background-image: url('/chess_board.png');
+  background-image: url('/chess-game/chess_board.png');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
