@@ -1,4 +1,5 @@
 import type { ChessPiece } from "../models/chess-piece";
+import type { PieceFactoryPort } from "./piece-factory-port";
 
 import { Bishop } from "../models/bishop";
 import { King } from "../models/king";
@@ -9,7 +10,7 @@ import { Rook } from "../models/rook";
 import { Valkyrie } from "../models/valkyrie";
 import { CellColor, type Coordinates, PieceType } from "../type";
 
-const PIECE_CLASSES = {
+export const PIECE_CLASSES = {
   [PieceType.Bishop]: Bishop,
   [PieceType.King]: King,
   [PieceType.Knight]: Knight,
@@ -18,49 +19,39 @@ const PIECE_CLASSES = {
   [PieceType.Rook]: Rook,
   [PieceType.Valkyrie]: Valkyrie,
 };
+export const pieceFactory: PieceFactoryPort = {
+  createPiece(
+    color: CellColor,
+    hasMoved: boolean,
+    location: Readonly<Coordinates>,
+    type: PieceType,
+  ): ChessPiece | undefined {
+    const PieceClass = PIECE_CLASSES[type];
+    if (PieceClass) return new PieceClass(color, location, hasMoved, type);
+  },
 
-export function createPiece(
-  color: CellColor,
-  hasMoved: boolean,
-  location: Readonly<Coordinates>,
-  type: PieceType,
-): ChessPiece | undefined {
-  const PieceClass = PIECE_CLASSES[type];
-  if (PieceClass) return new PieceClass(color, location, hasMoved);
-}
+  createPromotedPawn(promotedPawnColor: CellColor, promotedPawnLocation: Readonly<Coordinates>): ChessPiece | undefined {
+    return this.createPiece(promotedPawnColor, true, promotedPawnLocation, PieceType.Valkyrie);
+  },
 
-export function createPieceFromPrototype(
-  color: CellColor,
-  hasMoved: boolean,
-  location: Readonly<Coordinates>,
-  piece: Readonly<ChessPiece>,
-): ChessPiece {
-  // TypeScript cannot infer constructor types for unions of classes (Piece), so 'as any' is required here for dynamic instantiation.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return new (piece.constructor as any)(color, location, hasMoved);
-}
+  createStandardBoardPiece(coordinates: Readonly<Coordinates>): ChessPiece | undefined {
+    const { col, row } = coordinates;
+    const color: CellColor | undefined =
+      (row === 0 || row === 1)
+        ? CellColor.Black
+        : ((row === 6 || row === 7)
+          ? CellColor.White
+          : undefined);
 
-export function createPromotedPawn(pawn: Readonly<Pawn>) {
-  return new Valkyrie(pawn.color, pawn.location, true);
-}
+    const firstRank = color === CellColor.Black ? 0 : 7;
+    const pawnRank = color === CellColor.Black ? 1 : 6;
 
-export function createStandardBoardPiece(coordinates: Readonly<Coordinates>) {
-  const { col, row } = coordinates;
-  const color: CellColor | undefined =
-    (row === 0 || row === 1)
-      ? CellColor.Black
-      : ((row === 6 || row === 7)
-        ? CellColor.White
-        : undefined);
+    if (color && row === pawnRank) return this.createPiece(color, false, coordinates, PieceType.Pawn);
 
-  const firstRank = color === CellColor.Black ? 0 : 7;
-  const pawnRank = color === CellColor.Black ? 1 : 6;
-
-  if (color && row === pawnRank) return new Pawn(color, { col, row }, false);
-
-  if (color && row === firstRank) {
-    const pieceOrder = [Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook];
-    const PieceClass = pieceOrder[col];
-    return PieceClass ? new PieceClass(color, { col, row }, false) : undefined;
+    if (color && row === firstRank) {
+      const pieceOrder = [PieceType.Rook, PieceType.Knight, PieceType.Bishop, PieceType.Queen, PieceType.King, PieceType.Bishop, PieceType.Knight, PieceType.Rook];
+      const PieceClass = pieceOrder[col];
+      return PieceClass ? this.createPiece(color, false, coordinates, PieceClass) : undefined;
+    }
   }
-}
+};
