@@ -16,7 +16,7 @@ export class Pawn extends ChessPiece {
       return cell.piece &&
       cell.piece.type === PieceType.Pawn &&
       ((cell.piece!.color === CellColor.White && cell.coordinates.row === 0) ||
-      (cell.piece!.color === CellColor.Black && cell.coordinates.row === 7)) ? {...cell, piece: pieceFactory.createPromotedPawn(cell.piece!.color, cell.piece!.location)} : cell;
+      (cell.piece!.color === CellColor.Black && cell.coordinates.row === 7)) ? {...cell, piece: pieceFactory.createPromotedPawn(cell.piece!.color, cell.coordinates)} : cell;
     });
   }
 
