@@ -36,7 +36,7 @@ export default function Board() {
     const { attackers, check } = checkForCheck(context);
     if (check) {
       if (isCheckmate(context)) {
-        setGameStatus(GameStatus.Check);
+        setGameStatus(GameStatus.Checkmate);
       } else {
         setGameStatus(GameStatus.Check);
       }
