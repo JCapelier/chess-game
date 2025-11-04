@@ -7,20 +7,20 @@ import { capitalize } from '../utils/utils';
 export default function Cell(props: Readonly<CellProps>) {
   //Mapping object to render the proper piece
   const pieceImages: { [key: string]: string } = {
-    bB: '/public/pieces/black_bishop.png',
-    bK: '/public/pieces/black_king.png',
-    bN: '/public/pieces/black_knight.png',
-    bP: '/public/pieces/black_pawn.png',
-    bQ: '/public/pieces/black_queen.png',
-    bR: '/public/pieces/black_rook.png',
-    bV: '/public/pieces/black_valkyrie.png',
-    wB: '/public/pieces/white_bishop.png',
-    wK: '/public/pieces/white_king.png',
-    wN: '/public/pieces/white_knight.png',
-    wP: '/public/pieces/white_pawn.png',
-    wQ: '/public/pieces/white_queen.png',
-    wR: '/public/pieces/white_rook.png',
-    wV: '/public/pieces/white_valkyrie.png',
+    bB: 'public/pieces/black_bishop.png',
+    bK: 'public/pieces/black_king.png',
+    bN: 'public/pieces/black_knight.png',
+    bP: 'public/pieces/black_pawn.png',
+    bQ: 'public/pieces/black_queen.png',
+    bR: 'public/pieces/black_rook.png',
+    bV: 'public/pieces/black_valkyrie.png',
+    wB: 'public/pieces/white_bishop.png',
+    wK: 'public/pieces/white_king.png',
+    wN: 'public/pieces/white_knight.png',
+    wP: 'public/pieces/white_pawn.png',
+    wQ: 'public/pieces/white_queen.png',
+    wR: 'public/pieces/white_rook.png',
+    wV: 'public/pieces/white_valkyrie.png',
   };
 
   //This was done with the help of different AI.
