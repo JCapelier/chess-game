@@ -11,10 +11,10 @@ export abstract class ChessPiece {
 
   constructor(color: CellColor, location: Readonly<Coordinates>, hasMoved: boolean = false, type: PieceType) {;
     this.color = color;
-    this.symbol = this.getPieceSymbol();
+    this.type = type;
     this.hasMoved = hasMoved;
     this.location = location;
-    this.type = type;
+    this.symbol = this.getPieceSymbol();
   }
 
   canMove(context: Readonly<MoveContext>, destinationCell: Readonly<Cell>, simulation: boolean = false): boolean {
