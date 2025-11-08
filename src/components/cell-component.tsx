@@ -1,6 +1,6 @@
 import type { CellProps } from '../type';
 
-import './cell.css';
+import './cell-component.css';
 import { capitalize } from '../utils/utils';
 
 

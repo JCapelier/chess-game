@@ -3,12 +3,14 @@ import { capitalize } from '../utils/utils';
 
 //Multiple types are needed to comply with the no-mixed-types rule. It's allowed for advanced types.
 interface GameHeaderData {
+  canRedo: boolean;
   canUndo: boolean;
   gameStatus: GameStatus;
   turn: CellColor;
 };
 
 interface GameHeaderHandlers extends GameHeaderData {
+  onRedo: () => void;
   onReset: () => void;
   onUndo: () => void;
 };
@@ -56,6 +58,17 @@ export default function GameHeader (props: Readonly<GameHeaderProps>) {
             onClick={props.onUndo}
           >
             Undo
+          </button>
+          <button
+            className={`font-bold py-2 px-5 rounded-lg shadow transition-colors duration-150 ${
+              props.canRedo
+                ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+            disabled={!props.canRedo}
+            onClick={props.onRedo}
+          >
+            Redo
           </button>
           <button
             className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-5 rounded-lg shadow transition-colors duration-150"

@@ -1,11 +1,11 @@
 import './app.css';
-import Board from './components/board';
+import BoardComponent from './components/board-component';
 
 function App() {
 
   return (
     <>
-      <Board />
+      <BoardComponent />
     </>
   );
 }

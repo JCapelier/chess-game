@@ -1,4 +1,4 @@
-import type { PieceFactoryPort } from './factories/piece-factory-port';
+import type { Board } from './board/board';
 import type { ChessPiece } from './models/chess-piece';
 
 export enum CellColor {
@@ -12,7 +12,6 @@ export enum GameStatus {
   Playing = 'playing',
   Stalemate = 'stalemate',
 };
-
 
 export enum PieceSymbol {
   BlackBishop = "bB",
@@ -60,6 +59,10 @@ export type CellProps = Cell & {
   onDrop: () => void;
 };
 
+export interface CheckResult {
+  attackers: Cell[];
+  check: boolean;
+}
 export type Coordinates = {
   col: number;
   row: number;
@@ -78,14 +81,10 @@ export interface Move {
   to: Cell;
 };
 
-export interface MoveContext {
-  cells: Readonly<Cell[]>;
-  gameStatus: GameStatus;
-  lastMove?: Readonly<Move>;
-  pieceFactory: PieceFactoryPort;
-  startCell?: Readonly<Cell>;
-  turn: CellColor;
-};
+export interface MoveResult {
+  board: Board;
+  success: boolean;
+}
 
 export interface PieceInstance {
   color: CellColor;

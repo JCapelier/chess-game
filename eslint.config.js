@@ -78,7 +78,13 @@ export default defineConfig([
     },
   },
   {
-    files: ['src/models/**/*.ts'],
+    files: ['src/moves/**/*.ts'],
+    rules: {
+      'functional/prefer-immutable-types': 'off'
+    }
+  },
+  {
+    files: ['src/models/**/*.ts', 'src/board/**/*.ts'],
     rules: {
       'functional/no-class': 'off',
       'functional/no-classes': 'off',
@@ -87,14 +93,10 @@ export default defineConfig([
       'functional/no-return-void': 'off',
       'functional/no-conditional-statements': 'off',
       'functional/immutable-data': 'off',
+      'functional/prefer-immutable-types': 'off',
       'functional/no-class-inheritance': 'off',
+      "immutable/no-mutation": "off",
       'semi': ['error', 'always'],
     },
-  },
-  {
-    files: ['**/*.{ts,tsx}'],
-    rules: {
-
-    }
-  },
+  }
 ])

@@ -1,16 +1,16 @@
 import { diagonalSlidingMoves } from "../moves/move-helpers";
-import { type Cell, type CellColor, type Coordinates, type MoveContext, PieceType } from '../type';
+import { type Cell, type CellColor, PieceType } from '../type';
 import { ChessPiece } from "./chess-piece";
 
 export class Bishop extends ChessPiece {
-  constructor(color: CellColor, location: Readonly<Coordinates>, hasMoved: boolean = false, type: PieceType) {
-    super(color, location, hasMoved, type);
+  constructor(color: CellColor, hasMoved: boolean = false, type: PieceType) {
+    super(color, hasMoved, type);
   }
 
-  validMoves(context: Readonly<MoveContext>): Cell[] {
+  validMoves(cells: Readonly<Cell[]>): Cell[] {
 
-    if (!(context.startCell!.piece && context.startCell!.piece.type === PieceType.Bishop)) return [];
+    if (!(this.type === PieceType.Bishop)) return [];
 
-    return diagonalSlidingMoves(context);
+    return diagonalSlidingMoves(cells, this);
   }
 }

@@ -1,25 +1,18 @@
-import { getPossibleMoves } from "../moves/possible-moves";
-import { type Cell, CellColor, type Coordinates, type MoveContext, PieceSymbol, PieceType } from "../type";
+import { type Cell, CellColor, PieceSymbol, PieceType } from "../type";
+import { getPieceLocation } from "../utils/find-piece-utils";
 import { toChessNotation } from "../utils/utils";
 
 export abstract class ChessPiece {
   color: CellColor;
   hasMoved: boolean;
-  location: Coordinates;
   symbol: PieceSymbol;
   type: PieceType;
 
-  constructor(color: CellColor, location: Readonly<Coordinates>, hasMoved: boolean = false, type: PieceType) {;
+  constructor(color: CellColor, hasMoved: boolean = false, type: PieceType) {;
     this.color = color;
     this.type = type;
     this.hasMoved = hasMoved;
-    this.location = location;
     this.symbol = this.getPieceSymbol();
-  }
-
-  canMove(context: Readonly<MoveContext>, destinationCell: Readonly<Cell>, simulation: boolean = false): boolean {
-    const possibleMoves = getPossibleMoves(context, simulation);
-    return possibleMoves.some(cell => toChessNotation(cell.coordinates) === toChessNotation(destinationCell.coordinates));
   }
 
   getPieceSymbol(): PieceSymbol {
@@ -52,31 +45,18 @@ export abstract class ChessPiece {
     return this.color === turn;
   }
 
-  movePiece(context: Readonly<MoveContext>, destinationCell: Readonly<Cell>, simulation: boolean = false): {cells: Cell[], success: boolean} {
-    if (!this.canMove(context, destinationCell, simulation)) return {cells: [...context.cells], success: false};
+  updateCellsForMovingPiece(cells: Readonly<Cell[]>): Cell[] {
+    const pieceLocation = getPieceLocation(cells, this);
+    if (!pieceLocation) return [];
 
-    const newCells = context.cells.map(cell => {
-      if (toChessNotation(cell.coordinates) === toChessNotation(this.location)) {
-        return { ...cell, piece: undefined };
-      } else if (toChessNotation(cell.coordinates) === toChessNotation(destinationCell.coordinates)) {
-        return { ...cell, piece: context.pieceFactory.createPiece(this.color, true, cell.coordinates, this.type) };
-      } else {
-        return cell;
-      }
-    });
-    return { cells: newCells, success: true };
-  };
-
-
-  updateCellsForMovingPiece(context: Readonly<MoveContext>): Cell[] {
-    return context.cells.map(cell =>
-      toChessNotation(cell.coordinates) === toChessNotation(this.location)
+    return cells.map(cell =>
+      toChessNotation(cell.coordinates) === toChessNotation(pieceLocation)
         ? { ...cell, piece: undefined }
         : cell
       );
     }
 
-  validMoves(_context: Readonly<MoveContext>): Cell[] {
+  validMoves(_cells: Readonly<Cell[]>): Cell[] {
     // Default: no moves
     return [];
   }
