@@ -1,21 +1,21 @@
 import { diagonalSlidingMoves, jumpingMoves, orthogonalSlidingMoves } from '../moves/move-helpers';
-import { type Cell, type CellColor, type Coordinates, type MoveContext, PieceType } from '../type';
+import { type Cell, type CellColor, PieceType } from '../type';
 import { ChessPiece } from "./chess-piece";
 
 export class Valkyrie extends ChessPiece {
 
-  constructor(color: Readonly<CellColor>, location: Readonly<Coordinates>, hasMoved: boolean = false, type: PieceType) {
-      super(color, location, hasMoved, type);
+  constructor(color: Readonly<CellColor>, hasMoved: boolean = false, type: PieceType) {
+      super(color, hasMoved, type);
     }
 
-  validMoves(context: Readonly<MoveContext>): Cell[] {
+  validMoves(cells: Readonly<Cell[]>): Cell[] {
 
-    if (!(context.startCell!.piece && context.startCell!.piece.type === PieceType.Valkyrie)) return [];
+    if (!(this.type === PieceType.Valkyrie)) return [];
 
     return [
-      ...jumpingMoves(context),
-      ...orthogonalSlidingMoves(context),
-      ...diagonalSlidingMoves(context)
+      ...jumpingMoves(cells, this),
+      ...orthogonalSlidingMoves(cells, this),
+      ...diagonalSlidingMoves(cells, this)
     ];
   }
 }
