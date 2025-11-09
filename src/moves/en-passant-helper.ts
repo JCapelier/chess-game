@@ -1,8 +1,8 @@
 import type { Board } from "../board/board";
 
 import { type Cell, type Move, PieceType } from "../type";
+import { areSameCoordinates } from "../utils/cells-utils";
 import { isWhite } from "../utils/color-utils";
-import { toChessNotation } from "../utils/utils";
 
 export function enPassantMoves(board: Board, from: Cell): Cell[] {
   if (!board.lastMove || !hasPawnMovedTwoSquares(board.lastMove)) return [];
@@ -39,7 +39,7 @@ export function isEnPassantMove(board: Board, from: Cell, destinationCell: Reado
   const enPassantValidMoves = enPassantMoves(board, from);
   // We checks if there's an en passant move with the current selected piece.
   const isEnPassant = enPassantValidMoves.some(
-    cell => toChessNotation(cell.coordinates) === toChessNotation(destinationCell.coordinates)
+    cell => areSameCoordinates(cell.coordinates, destinationCell.coordinates)
   );
   return isEnPassant;
 }

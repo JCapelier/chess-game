@@ -2,8 +2,8 @@ import type { ChessPiece } from "../models/chess-piece";
 
 import { Board } from "../board/board";
 import { type Cell, GameStatus, PieceType } from "../type";
+import { areSameCoordinates } from "../utils/cells-utils";
 import { playerKing } from "../utils/find-piece-utils";
-import { toChessNotation } from "../utils/utils";
 
 export function areInBetweenCellsEmpty(cells: Readonly<Cell[]>, kingCell: Readonly<Cell>, rookCell: Readonly<Cell>): boolean {
   const inBetweenCells = orderedInBetweenCells(cells, kingCell, rookCell);
@@ -69,9 +69,9 @@ function isKingPathSafe(
 ): boolean {
   return !pathCells.some(cell => {
     const simulatedCells = board.cells.map(boardCell => {
-      if (toChessNotation(boardCell.coordinates) === toChessNotation(kingCell.coordinates)) {
+      if (areSameCoordinates(boardCell.coordinates, kingCell.coordinates)) {
         return { ...boardCell, piece: undefined };
-      } else if (toChessNotation(boardCell.coordinates) === toChessNotation(cell.coordinates)) {
+      } else if (areSameCoordinates(boardCell.coordinates, cell.coordinates)) {
         return { ...boardCell, piece: board.pieceFactory.createPiece(kingPiece.color, true, kingPiece.type) };
       } else {
         return boardCell;

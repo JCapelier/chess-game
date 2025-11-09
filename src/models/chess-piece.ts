@@ -1,6 +1,6 @@
 import { type Cell, CellColor, PieceSymbol, PieceType } from "../type";
+import { areSameCoordinates } from "../utils/cells-utils";
 import { getPieceLocation } from "../utils/find-piece-utils";
-import { toChessNotation } from "../utils/utils";
 
 export abstract class ChessPiece {
   color: CellColor;
@@ -50,7 +50,7 @@ export abstract class ChessPiece {
     if (!pieceLocation) return [];
 
     return cells.map(cell =>
-      toChessNotation(cell.coordinates) === toChessNotation(pieceLocation)
+      areSameCoordinates(cell.coordinates, pieceLocation)
         ? { ...cell, piece: undefined }
         : cell
       );
