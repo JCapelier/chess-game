@@ -1,12 +1,11 @@
 import { CellColor, GameStatus, type MoveResult } from "../type";
-import { checkForCheck, isCheckmate, isStaleMate } from "../utils/game-status-utils";
 import { Board } from "./board";
 
   export function updateGameStatus(moveResult: Readonly<MoveResult>) {
-    const checkResult = checkForCheck(moveResult.board);
-    if (isCheckmate(moveResult.board, checkResult)) {
+    const checkResult = moveResult.board.checkForCheck();
+    if (moveResult.board.isCheckmate(checkResult)) {
       moveResult.board.gameStatus = GameStatus.Checkmate;
-    } else if (isStaleMate(moveResult.board, checkResult)) {
+    } else if (moveResult.board.isStaleMate(checkResult)) {
       moveResult.board.gameStatus = GameStatus.Stalemate;
     } else if (checkResult.check) {
       moveResult.board.gameStatus = GameStatus.Check;

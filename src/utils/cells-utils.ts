@@ -1,7 +1,17 @@
 import { type Cell, CellColor, type Coordinates } from "../type";
 
+/**
+ * Checks if two coordinates point to the same cell.
+ */
+export function areSameCoordinates(
+  coords1: Readonly<Coordinates>,
+  coords2: Readonly<Coordinates>
+): boolean {
+  return coords1.row === coords2.row && coords1.col === coords2.col;
+}
+
 export function getCellByLocation(cells: Readonly<Cell[]>, location: Readonly<Coordinates>): Cell | undefined {
-  return cells.find(cell => cell.coordinates.row === location.row && cell.coordinates.col === location.col);
+  return cells.find(cell => areSameCoordinates(cell.coordinates, location));
 }
 
 export function getCellColor(coordinates: Readonly<Coordinates>): CellColor {

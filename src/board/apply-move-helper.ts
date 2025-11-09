@@ -2,7 +2,6 @@ import type { Cell, MoveResult } from "../type";
 import type { Board } from "./board";
 
 import { castlingMoves } from "../moves/castling-helper";
-import { getPossibleMoves } from "../moves/possible-moves";
 import { toChessNotation } from "../utils/utils";
 
   export function applyCastling(board:Board, from: Cell, to: Cell): MoveResult {
@@ -62,6 +61,6 @@ import { toChessNotation } from "../utils/utils";
   }
 
   export function canMove(board: Board, from: Readonly<Cell>, to: Readonly<Cell>, simulation: boolean = false) {
-    const possibleMoves: Cell[] = getPossibleMoves(board, from, simulation);
+    const possibleMoves: Cell[] = board.getPossibleMoves(from, simulation);
     return possibleMoves.some(cell => toChessNotation(cell.coordinates) === toChessNotation(to.coordinates));
   }

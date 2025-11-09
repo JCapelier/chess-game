@@ -3,7 +3,6 @@ import type { ChessPiece } from "../models/chess-piece";
 import { Board } from "../board/board";
 import { type Cell, GameStatus, PieceType } from "../type";
 import { playerKing } from "../utils/find-piece-utils";
-import { checkForCheck } from "../utils/game-status-utils";
 import { toChessNotation } from "../utils/utils";
 
 export function areInBetweenCellsEmpty(cells: Readonly<Cell[]>, kingCell: Readonly<Cell>, rookCell: Readonly<Cell>): boolean {
@@ -79,7 +78,7 @@ function isKingPathSafe(
       }
     });
     const simulatedBoard = new Board(simulatedCells, board.lastMove, board.gameStatus, board.pieceFactory, board.turn, { evaluateGameStatusOnInit: false });
-    return checkForCheck(simulatedBoard).check === true;
+    return simulatedBoard.checkForCheck().check === true;
   });
 }
 
