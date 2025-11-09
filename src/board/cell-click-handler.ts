@@ -1,10 +1,10 @@
 import type { Cell } from "../type";
 import type { Board } from "./board";
 
-import { toChessNotation } from "../utils/utils";
+import { areSameCoordinates } from "../utils/cells-utils";
 
 export function cellClickHandler(board: Board, undoStack: Board[], cell: Cell, selectedCell?: Cell): {board: Board, moveSuccess: boolean, selectedCell: Cell | undefined, undoStack: Board[]} {
-  if (selectedCell && toChessNotation(selectedCell.coordinates) === toChessNotation(cell.coordinates)) {
+  if (selectedCell && areSameCoordinates(selectedCell.coordinates, cell.coordinates)) {
   return {board: board, moveSuccess: false, selectedCell: undefined, undoStack: undoStack};
 } else if (selectedCell) {
     const result = board.movePiece(selectedCell, cell);
