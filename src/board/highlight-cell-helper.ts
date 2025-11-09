@@ -1,7 +1,6 @@
 import type { Board } from "./board";
 
 import { castlingMoves } from "../moves/castling-helper";
-import { getPossibleMoves } from "../moves/possible-moves";
 import { type Cell, GameStatus, PieceType } from "../type";
 import { areSameCoordinates } from "../utils/cells-utils";
 
@@ -37,7 +36,7 @@ import { areSameCoordinates } from "../utils/cells-utils";
  */
   export function isPossibleDestination(board: Readonly<Board>, cell: Readonly<Cell>, selectedCell?: Readonly<Cell>): boolean {
     if (!selectedCell) return false;
-    return getPossibleMoves(board, selectedCell).some(destination => areSameCoordinates(destination.coordinates, cell.coordinates));
+    return board.getPossibleMoves(selectedCell).some(destination => areSameCoordinates(destination.coordinates, cell.coordinates));
   }
 
 /**
