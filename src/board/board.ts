@@ -5,11 +5,10 @@ import { castlingMoves, isCastlingMove } from "../moves/castling-helper";
 import { enPassantMoves, isEnPassantMove } from "../moves/en-passant-helper";
 import { pawnPromotion } from "../moves/promotion-helper";
 import { type Cell, CellColor, type CheckResult, GameStatus, type Move, type MoveResult, PieceType } from "../type";
-import { toChessNotation } from "../utils/utils";
+import { areSameCoordinates } from "../utils/cells-utils";
 import { applyCastling, applyEnPassant, applyNormalMove } from "./apply-move-helper";
 import { clone } from "./board-cloning-helper";
 import { getStandardCells } from "./board-setup-helper";
-import { updateGameStatus, updateTurn } from "./game-state-management-helper";
 
 export class Board {
   attackers: Cell[] = [];
@@ -36,7 +35,7 @@ export class Board {
 
     if (options?.evaluateGameStatusOnInit !== false) {
       // must not call anything that triggers simulations
-      updateGameStatus({ board: this, success: true });
+      this.updateGameStatus();
     }
   }
 
@@ -58,7 +57,7 @@ export class Board {
     const attacks: Cell[] = enemyCells.filter(cell => {
       const enemyBoard: Board = new Board(this.cells, this.lastMove, this.gameStatus, this.pieceFactory, enemyColor, { evaluateGameStatusOnInit: false });
       const cellsAttacked = enemyBoard.getPossibleMoves(cell, true);
-      return cellsAttacked.some(attack => toChessNotation(attack.coordinates) === toChessNotation(kingCell.coordinates));
+      return cellsAttacked.some(attack => areSameCoordinates(attack.coordinates, kingCell.coordinates));
     });
 
     return { attackers: attacks, check: attacks.length > 0 };
@@ -100,7 +99,7 @@ export class Board {
   }
 
   movePiece(from: Readonly<Cell>, to: Readonly<Cell>, simulation: boolean = false): MoveResult {
-    if (!from.piece || !this.getPossibleMoves(from, simulation).some((cell) => toChessNotation(cell.coordinates) === toChessNotation(to.coordinates)))
+    if (!from.piece || !this.getPossibleMoves(from, simulation).some((cell) => areSameCoordinates(cell.coordinates, to.coordinates)))
       return { board: this, success: false };
 
     // eslint-disable-next-line functional/no-let
@@ -108,8 +107,8 @@ export class Board {
 
     if (simulation) {
       const clonedBoard = clone(this);
-      const clonedFrom = clonedBoard.cells.find((cell) => toChessNotation(cell.coordinates) === toChessNotation(from.coordinates));
-      const clonedTo = clonedBoard.cells.find((cell) => toChessNotation(cell.coordinates) === toChessNotation(to.coordinates));
+      const clonedFrom = clonedBoard.cells.find((cell) => areSameCoordinates(cell.coordinates, from.coordinates));
+      const clonedTo = clonedBoard.cells.find((cell) => areSameCoordinates(cell.coordinates, to.coordinates));
       if (!(clonedFrom && clonedTo)) return { board: this, success: false };
 
       if (isCastlingMove(clonedBoard, clonedFrom, clonedTo)) {
@@ -137,8 +136,8 @@ export class Board {
       moveResult.board.cells = pawnPromotion(this);
       // Set lastMove with the piece we captured before moving
       moveResult.board.lastMove = { from: from, piece: movingPiece, to: to };
-      updateGameStatus(moveResult);
-      moveResult.board.turn = updateTurn(this);
+      moveResult.board.updateGameStatus();
+      moveResult.board.turn = moveResult.board.updateTurn();
       return moveResult;
     }
   }
@@ -177,5 +176,29 @@ export class Board {
           return !checkResult.check;
         });
       });
+  }
+
+  /**
+   * Updates the game status based on check, checkmate, and stalemate conditions.
+   */
+  private updateGameStatus(): void {
+    const checkResult = this.checkForCheck();
+    if (this.isCheckmate(checkResult)) {
+      this.gameStatus = GameStatus.Checkmate;
+    } else if (this.isStaleMate(checkResult)) {
+      this.gameStatus = GameStatus.Stalemate;
+    } else if (checkResult.check) {
+      this.gameStatus = GameStatus.Check;
+    } else {
+      this.gameStatus = GameStatus.Playing;
+    }
+    this.attackers = checkResult.attackers;
+  }
+
+  /**
+   * Returns the next player's turn.
+   */
+  private updateTurn(): CellColor {
+    return this.turn === CellColor.White ? CellColor.Black : CellColor.White;
   }
 }
